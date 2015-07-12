@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/C:/workspace/AndroidStudio/PhotoView/library/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.1/res/values-h720dp-v13/values.xml -->
+    <eat-comment/>
+    <dimen name="abc_alert_dialog_button_bar_height">54dip</dimen>
+</resources>
