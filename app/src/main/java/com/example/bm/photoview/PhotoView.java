@@ -13,6 +13,9 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by bm on 2015/6/21.
  */
@@ -20,16 +23,12 @@ public class PhotoView extends ImageView {
 
     private final float MAX_SCALE = 2.5f;
 
-    private final String NAME_SCALE = "scale";
-    private final String NAME_TRANSLATE = "translate";
-
-    private boolean canScroll;
+    private boolean canScrollWidth;
+    private boolean canScrollHeight;
     private boolean canScrollHorizontally;
+    private boolean canScrollVertically;
     private boolean hasDrawable;
-    private boolean isInit;
     private boolean isKnowSize;
-    private float[] mValues = new float[16];
-    private RectF mRect = new RectF();
     private Matrix mBaseMatrix = new Matrix();
     private Matrix mMatrix = new Matrix();
     private Matrix mAnimaMatrix = new Matrix();
@@ -41,15 +40,24 @@ public class PhotoView extends ImageView {
     private int mScreenCenterY;
     private int mWidth;
     private int mHeight;
-    private int mImgWidth;
-    private float mImgScaleWidth;
-    private float mImgTranslate;
 
-    private boolean hasTranslate;
+    private int mImgWidth;
+    private int mImgHeight;
+
+    private float mImgScaleWidth;
+    private float mImgScaleHeight;
+    private float mImgTranslateX;
+    private float mImgTranslateY;
+
+    private boolean hasTranslateX;
+    private boolean hasTranslateY;
     private float mScale = 1;
     private int mTranslateX;
+    private int mTranslateY;
     private int mCenterX;
     private int mCenterY;
+
+    private float[] mValues = new float[16];
 
     public PhotoView(Context context) {
         super(context);
@@ -100,6 +108,7 @@ public class PhotoView extends ImageView {
         int imgh = img.getIntrinsicHeight();
 
         mImgWidth = imgw;
+        mImgHeight = imgh;
 
         // center
         int tx = (w - imgw) / 2;
@@ -118,17 +127,13 @@ public class PhotoView extends ImageView {
 
         float scale = sx < sy ? sx : sy;
 
+        mBaseMatrix.reset();
         mBaseMatrix.postTranslate(tx, ty);
         mBaseMatrix.postScale(scale, scale, mScreenCenterX, mScreenCenterY);
 
         executeTranslate();
-
-        isInit = true;
     }
 
-    private void getRectFromMatrix(){
-
-    }
 
     private void executeTranslate() {
         mMatrix.set(mBaseMatrix);
@@ -137,9 +142,12 @@ public class PhotoView extends ImageView {
 
         mMatrix.getValues(mValues);
         mImgScaleWidth = mValues[0] * mImgWidth;
-        mImgTranslate = mValues[2];
+        mImgScaleHeight = mValues[0] * mImgHeight;
+        mImgTranslateX = mValues[2];
+        mImgTranslateY = mValues[5];
 
-        canScroll = mImgScaleWidth >= mWidth;
+        canScrollWidth = mImgScaleWidth >= mWidth;
+        canScrollHeight = mImgScaleHeight >= mHeight;
     }
 
     @Override
@@ -165,11 +173,16 @@ public class PhotoView extends ImageView {
         mTranslateX = x;
     }
 
+    private void setTranslateY(int y) {
+        mTranslateY = y;
+    }
+
     private ValueAnimator.AnimatorUpdateListener mValueUpdate = new ValueAnimator.AnimatorUpdateListener() {
         @Override
         public void onAnimationUpdate(ValueAnimator animation) {
             mAnimaMatrix.setScale(mScale, mScale, mCenterX, mCenterY);
-            mAnimaMatrix.postTranslate(mTranslateX, 0);
+            mAnimaMatrix.postTranslate(mTranslateX, mTranslateY);
+            Log.i("bm", "onAnimationUpdate " + mTranslateX + " ----- " + mTranslateY);
             executeTranslate();
         }
     };
@@ -177,7 +190,7 @@ public class PhotoView extends ImageView {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         super.dispatchTouchEvent(event);
-        canScrollHorizontally = mDetector.onTouchEvent(event);
+        mDetector.onTouchEvent(event);
         return true;
     }
 
@@ -185,22 +198,44 @@ public class PhotoView extends ImageView {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
-            if (canScroll) {
+            boolean handScroll = false;
 
-                if (mImgTranslate >= 0 && distanceX < 0) return false;
-                if (mWidth - mImgTranslate >= mImgScaleWidth && distanceX > 0) return false;
+            if (canScrollWidth) {
+                if (mImgTranslateX >= 0 && distanceX < 0) {
+                    canScrollHorizontally = false;
+                }else if (mWidth - mImgTranslateX >= mImgScaleWidth && distanceX > 0) {
+                    canScrollHorizontally = false;
+                } else {
+                    if (mImgTranslateX - distanceX >= 0) distanceX = mImgTranslateX;
+                    if (mWidth - mImgTranslateX + distanceX >= mImgScaleWidth)
+                        distanceX = mImgScaleWidth - mWidth + mImgTranslateX;
 
-                Log.i("bm", mWidth + "    " + mImgTranslate+ "   " + mImgWidth);
-
-                if (mImgTranslate - distanceX >= 0) distanceX = mImgTranslate;
-                if (mWidth - mImgTranslate + distanceX >= mImgScaleWidth)
-                    distanceX = mImgScaleWidth - mWidth + mImgTranslate;
-
-                hasTranslate = true;
-                mTranslateX += distanceX;
-                mAnimaMatrix.postTranslate(-distanceX, 0);
-                executeTranslate();
+                    mTranslateX += distanceX;
+                    mAnimaMatrix.postTranslate(-distanceX, 0);
+                    hasTranslateX = true;
+                    handScroll = true;
+                }
             }
+
+            if (canScrollHeight) {
+                if (mImgTranslateY >= 0 && distanceY < 0) {
+                    canScrollVertically = false;
+                }else if (mHeight - mImgTranslateY >= mImgScaleHeight && distanceY > 0) {
+                    canScrollVertically = false;
+                } else {
+                    if (mImgTranslateX - distanceX >= 0) distanceX = mImgTranslateX;
+                    if (mWidth - mImgTranslateX + distanceX >= mImgScaleWidth)
+                        distanceY = mImgScaleHeight - mHeight + mImgTranslateY;
+
+                    mTranslateY += distanceY;
+                    mAnimaMatrix.postTranslate(0, -distanceY);
+                    hasTranslateY = true;
+                    handScroll = true;
+                }
+            }
+
+            if (handScroll) executeTranslate();
+
             return true;
         }
 
@@ -214,23 +249,32 @@ public class PhotoView extends ImageView {
                 from = 1;
                 to = MAX_SCALE;
                 mCenterX = (int) e.getX();
-                mCenterY = (int) e.getY();
+                mCenterY = mScreenCenterY;
             } else {
                 from = MAX_SCALE;
                 to = 1;
             }
 
-            if (hasTranslate) {
-                hasTranslate = true;
+            List<PropertyValuesHolder> animasHolder = new ArrayList<>();
+
+            PropertyValuesHolder scale = PropertyValuesHolder.ofFloat("scale", from, to);
+            animasHolder.add(scale);
+
+            if (hasTranslateX) {
+                hasTranslateX = false;
                 PropertyValuesHolder translateX = PropertyValuesHolder.ofInt("translateX", -mTranslateX, 0);
-                PropertyValuesHolder scale = PropertyValuesHolder.ofFloat("scale", from, to);
-                mAnimator.setValues(translateX, scale);
                 mTranslateX = 0;
-            } else {
-                PropertyValuesHolder scale = PropertyValuesHolder.ofFloat("scale", from, to);
-                mAnimator.setValues(scale);
+                animasHolder.add(translateX);
             }
 
+            if (hasTranslateY) {
+                hasTranslateY = false;
+                PropertyValuesHolder translateY = PropertyValuesHolder.ofInt("translateY", -mTranslateY, 0);
+                mTranslateY = 0;
+                animasHolder.add(translateY);
+            }
+
+            mAnimator.setValues(animasHolder.toArray(new PropertyValuesHolder[0]));
             mAnimator.setTarget(PhotoView.this);
             mAnimator.start();
 
@@ -241,6 +285,11 @@ public class PhotoView extends ImageView {
     @Override
     public boolean canScrollHorizontally(int direction) {
         return canScrollHorizontally;
+    }
+
+    @Override
+    public boolean canScrollVertically(int direction) {
+        return canScrollVertically;
     }
 
     {
