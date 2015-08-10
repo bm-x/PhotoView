@@ -1,9 +1,7 @@
 package com.example.bm.photoview;
 
-import android.animation.PropertyValuesHolder;
 import android.content.Context;
 import android.graphics.Matrix;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
@@ -15,13 +13,8 @@ import android.view.ScaleGestureDetector;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.OverScroller;
-import android.widget.ScrollView;
 import android.widget.Scroller;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by bm on 2015/6/21.
@@ -40,9 +33,10 @@ public class PhotoView extends ImageView {
     private GestureDetector mDetector;
     private ScaleGestureDetector mScaleDetector;
 
+    private boolean hasMultiTouch;
     private boolean hasDrawable;
     private boolean isKnowSize;
-    private boolean hasTranslate;
+    private boolean hasOverTranslate;
 
     private boolean imgLargeWidth;
     private boolean imgLargeHeight;
@@ -51,8 +45,6 @@ public class PhotoView extends ImageView {
     private float mScale = 1.0f;
     private int mTranslateX;
     private int mTranslateY;
-    private float mOverTranslateX;
-    private float mOverTranslateY;
 
     private RectF mWidgetRect = new RectF();
     private RectF mBaseRect = new RectF();
@@ -63,8 +55,6 @@ public class PhotoView extends ImageView {
     private PointF mDoubleTab = new PointF();
 
     private Transform mTranslate = new Transform();
-
-    private float[] mValues = new float[16];
 
     public PhotoView(Context context) {
         super(context);
@@ -85,7 +75,7 @@ public class PhotoView extends ImageView {
         mDetector = new GestureDetector(getContext(), mGestureListener);
         mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
         MAX_OVER_SCROLL = (int) (getResources().getDisplayMetrics().density * 30);
-        MAX_FLING_OVER_SCROLL = (int) (getResources().getDisplayMetrics().density * 20);
+        MAX_FLING_OVER_SCROLL = (int) (getResources().getDisplayMetrics().density * 30);
     }
 
     @Override
@@ -152,8 +142,8 @@ public class PhotoView extends ImageView {
 
         mAnimaMatrix.mapRect(mImgRect, mBaseRect);
 
-        imgLargeWidth = mImgRect.width() >= mWidgetRect.width();
-        imgLargeHeight = mImgRect.height() >= mWidgetRect.height();
+        imgLargeWidth = mImgRect.width() > mWidgetRect.width();
+        imgLargeHeight = mImgRect.height() > mWidgetRect.height();
     }
 
     @Override
@@ -169,6 +159,10 @@ public class PhotoView extends ImageView {
         }
     }
 
+    private boolean isImageCenter() {
+        return mImgRect.top == (mWidgetRect.height() - mImgRect.height()) / 2;
+    }
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         super.dispatchTouchEvent(event);
@@ -180,19 +174,70 @@ public class PhotoView extends ImageView {
     }
 
     private void onUp(MotionEvent ev) {
-        mOverTranslateX = 0;
-        mOverTranslateY = 0;
+
+        float scale = mScale;
+        if (mScale < 1) {
+            scale = 1;
+            mTranslate.withScale(mScale, 1);
+        } else if (mScale > MAX_SCALE) {
+            scale = MAX_SCALE;
+            mTranslate.withScale(mScale, MAX_SCALE);
+        }
+
+        mTmpRect.set(mImgRect);
+
+        mTmpMatrix.setScale(scale, scale, mDoubleTab.x, mDoubleTab.y);
+        mTmpMatrix.postTranslate(mTranslateX, mTranslateY);
+        mTmpMatrix.mapRect(mTmpRect, mBaseRect);
+
+        doTranslateReset(mTmpRect);
+        mTranslate.start();
+    }
+
+    private void doTranslateReset(RectF imgRect) {
+        int tx = 0;
+        int ty = 0;
+
+        if (imgRect.left > mWidgetRect.left) {
+            tx = (int) (imgRect.left - mWidgetRect.left);
+        } else if (imgRect.right < mWidgetRect.right) {
+            tx = (int) (imgRect.right - mWidgetRect.right);
+        }
+
+        if (imgRect.height() < mWidgetRect.height() && !isImageCenter()) {
+            ty = -(int) ((mWidgetRect.height() - imgRect.height()) / 2 - imgRect.top);
+        } else if (imgRect.top > mWidgetRect.top) {
+            ty = -(int) (imgRect.top - mWidgetRect.top);
+        } else if (imgRect.bottom < mWidgetRect.bottom) {
+            ty = -(int) (imgRect.bottom - mWidgetRect.bottom);
+        }
+
+        if (tx != 0 || ty != 0) {
+            if (!mTranslate.mFlingScroller.isFinished()) mTranslate.mFlingScroller.abortAnimation();
+            mTranslate.withTranslate(mTranslateX, mTranslateY, -tx, -ty);
+        }
     }
 
     private ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            return false;
+            float scaleFactor = detector.getScaleFactor();
+
+            if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor))
+                return false;
+
+            mScale *= scaleFactor;
+            mDoubleTab.set(detector.getFocusX(), detector.getFocusY());
+            mAnimaMatrix.postScale(scaleFactor, scaleFactor, detector.getFocusX(), detector.getFocusY());
+            executeTranslate();
+
+            return true;
         }
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
-            return false;
+            hasMultiTouch = true;
+            return true;
         }
 
         @Override
@@ -205,17 +250,20 @@ public class PhotoView extends ImageView {
 
         @Override
         public boolean onDown(MotionEvent e) {
-            hasTranslate = false;
+            hasOverTranslate = false;
+            hasMultiTouch = false;
             return super.onDown(e);
         }
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-
+            if (hasMultiTouch) return false;
             if (!imgLargeWidth && !imgLargeHeight) return false;
             if (!mTranslate.mFlingScroller.isFinished()) return false;
+            if (Math.round(mImgRect.left) >= mWidgetRect.left || Math.round(mImgRect.right) <= mWidgetRect.right)
+                return false;
 
-            mTranslate.withFling(velocityX, velocityY);
+            mTranslate.withFling(velocityX, 0);
             mTranslate.start();
 
             return super.onFling(e1, e2, velocityX, velocityY);
@@ -223,8 +271,6 @@ public class PhotoView extends ImageView {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
-            boolean handScroll = false;
 
             if (mTranslate.isRuning) {
                 mTranslate.stop();
@@ -238,8 +284,10 @@ public class PhotoView extends ImageView {
 
                 mAnimaMatrix.postTranslate(-distanceX, 0);
                 mTranslateX -= distanceX;
-                handScroll = true;
-//                hasTranslate = true;
+            } else if (imgLargeWidth || hasMultiTouch) {
+                mAnimaMatrix.postTranslate(-distanceX, 0);
+                mTranslateX -= distanceX;
+                hasOverTranslate = true;
             }
 
             if (canScrollVerticallySelf(distanceY)) {
@@ -249,14 +297,13 @@ public class PhotoView extends ImageView {
                     distanceY = mImgRect.bottom - mWidgetRect.bottom;
 
                 mAnimaMatrix.postTranslate(0, -distanceY);
-                handScroll = true;
-                mTranslateY += distanceY;
-//                hasTranslate = true;
+                mTranslateY -= distanceY;
+            } else if (imgLargeHeight || hasOverTranslate || hasMultiTouch) {
+                mAnimaMatrix.postTranslate(0, -distanceY);
+                mTranslateY -= distanceY;
             }
 
-            if (handScroll) executeTranslate();
-//            else if (hasTranslate) onOverScroll(-distanceX, -distanceY);
-
+            executeTranslate();
             return true;
         }
 
@@ -284,59 +331,20 @@ public class PhotoView extends ImageView {
         }
     };
 
-    private void onOverScroll(float distanceX, float distanceY) {
-//        float dx = 0;
-//        float dy = 0;
-//
-//        if (mOverTranslateX < 0 && distanceX > 0) {
-//            if (mOverTranslateX - distanceX >= 0) dx = mOverTranslateX;
-//            else dx = distanceX;
-//        } else {
-//            dx = distanceX * Math.abs((Math.abs(mOverTranslateX) - MAX_OVER_SCROLL) / MAX_OVER_SCROLL);
-//        }
-//
-//        if (mOverTranslateX > 0 && distanceX < 0) {
-//            if (mOverTranslateX - distanceX <= 0) dx = mOverTranslateX;
-//            else dx = distanceX;
-//        } else {
-//            dx = distanceX * Math.abs((Math.abs(mOverTranslateX) - MAX_OVER_SCROLL) / MAX_OVER_SCROLL);
-//        }
-//
-//        if (mOverTranslateY < 0 && distanceY > 0) {
-//            if (mOverTranslateY - distanceY >= 0) dy = mOverTranslateY;
-//            else dy = distanceY;
-//        } else {
-//            dy = distanceY * Math.abs((Math.abs(mOverTranslateY) - MAX_OVER_SCROLL) / MAX_OVER_SCROLL);
-//        }
-//
-//        if(mOverTranslateY > 0 && distanceY < 0){
-//            if (mOverTranslateY - distanceY <= 0) dy = mOverTranslateY;
-//            else dy = distanceY;
-//        } else {
-//            dy = distanceY * Math.abs((Math.abs(mOverTranslateY) - MAX_OVER_SCROLL) / MAX_OVER_SCROLL);
-//        }
-//
-//
-//        mOverTranslateX += dx;
-//        mOverTranslateY += dy;
-//        mAnimaMatrix.postTranslate(dx, dy);
-//        executeTranslate();
-    }
-
     public boolean canScrollHorizontallySelf(float direction) {
-        if (mOverTranslateX != 0) return false;
-        if (mImgRect.width() < mWidgetRect.width()) return false;
-        if (direction < 0 && Math.round(mImgRect.left) >= mWidgetRect.left) return false;
-        if (direction > 0 && Math.round(mImgRect.right) <= mWidgetRect.right) return false;
-        if (mOverTranslateX != 0) return false;
+        if (mImgRect.width() <= mWidgetRect.width()) return false;
+        if (direction < 0 && Math.round(mImgRect.left) - direction >= mWidgetRect.left)
+            return false;
+        if (direction > 0 && Math.round(mImgRect.right) - direction <= mWidgetRect.right)
+            return false;
         return true;
     }
 
     public boolean canScrollVerticallySelf(float direction) {
-        if (mOverTranslateY != 0) return false;
-        if (mImgRect.height() < mWidgetRect.height()) return false;
-        if (direction < 0 && Math.round(mImgRect.top) >= mWidgetRect.left) return false;
-        if (direction > 0 && Math.round(mImgRect.bottom) <= mWidgetRect.bottom) return false;
+        if (mImgRect.height() <= mWidgetRect.height()) return false;
+        if (direction < 0 && Math.round(mImgRect.top) - direction >= mWidgetRect.left) return false;
+        if (direction > 0 && Math.round(mImgRect.bottom) - direction <= mWidgetRect.bottom)
+            return false;
         return true;
     }
 
@@ -382,18 +390,18 @@ public class PhotoView extends ImageView {
 
         void withFling(float velocityX, float velocityY) {
             mLastX = velocityX < 0 ? Integer.MAX_VALUE : 0;
-            mLastY = velocityY < 0 ? Integer.MAX_VALUE : 0;
+//            mLastY = velocityY < 0 ? Integer.MAX_VALUE : 0;
             int distanceX = (int) (velocityX > 0 ? Math.abs(mImgRect.left) : mImgRect.right - mWidgetRect.right);
             int distanceY = mImgRect.height() > mWidgetRect.height() ? (int) (velocityY > 0 ? Math.abs(mImgRect.top) : mImgRect.bottom - mWidgetRect.bottom) : 0;
             distanceX = velocityX < 0 ? Integer.MAX_VALUE - distanceX : distanceX;
-            distanceY = velocityY < 0 ? Integer.MAX_VALUE - distanceY : distanceY;
+//            distanceY = velocityY < 0 ? Integer.MAX_VALUE - distanceY : distanceY;
 
             int minX = velocityX < 0 ? distanceX : 0;
             int maxX = velocityX < 0 ? Integer.MAX_VALUE : distanceX;
-            int minY = velocityY < 0 ? distanceY : 0;
-            int maxY = distanceY < 0 ? Integer.MAX_VALUE : distanceY;
-
-            mFlingScroller.fling(mLastX, mLastY, (int) velocityX, (int) velocityY, minX, maxX, minY, maxY, MAX_FLING_OVER_SCROLL, MAX_FLING_OVER_SCROLL);
+//            int minY = velocityY < 0 ? distanceY : 0;
+//            int maxY = distanceY < 0 ? Integer.MAX_VALUE : distanceY;
+            int over = velocityX < 0 ? Integer.MAX_VALUE - minX : distanceX;
+            mFlingScroller.fling(mLastX, mLastY, (int) velocityX, (int) velocityY, minX, maxX, 0, 0, Math.abs(over) < MAX_FLING_OVER_SCROLL * 2 ? 0 : MAX_FLING_OVER_SCROLL, 0);
         }
 
         void start() {
@@ -405,18 +413,19 @@ public class PhotoView extends ImageView {
             removeCallbacks(this);
         }
 
-        public void stop() {
+        void stop() {
             removeCallbacks(this);
             mTranslateScroller.abortAnimation();
             mScaleScroller.abortAnimation();
             mFlingScroller.abortAnimation();
-
 
             isRuning = false;
         }
 
         @Override
         public void run() {
+
+            if (!isRuning) return;
 
             boolean endAnima = true;
 
@@ -437,8 +446,6 @@ public class PhotoView extends ImageView {
 
                 mLastX = mFlingScroller.getCurrX();
                 mLastY = mFlingScroller.getCurrY();
-
-                Log.i("bm", "run  " + mFlingScroller.getCurrX());
 
                 mTranslateX += x;
                 mTranslateY += y;

@@ -24,7 +24,6 @@
             android:layout_height="wrap_content"
             android:onClick="translate"
             android:text="移动" />
-
     </LinearLayout>
 
 
@@ -32,6 +31,7 @@
         android:id="@+id/img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/holo_orange_light"
         android:scaleType="matrix"
         android:src="@mipmap/aaa" />
 
