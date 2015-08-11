@@ -1,15 +1,13 @@
 package com.example.bm.photoview;
 
+import android.app.Activity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class ViewPagerActivity extends AppCompatActivity {
+public class ViewPagerActivity extends Activity {
 
     private ViewPager mPager;
 
