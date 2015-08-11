@@ -473,7 +473,7 @@ public class PhotoView extends ImageView {
 
         void start() {
             isRuning = true;
-            postOnAnimation(this);
+            post(this);
         }
 
         void stopSelf() {
@@ -528,7 +528,7 @@ public class PhotoView extends ImageView {
                 mAnimaMatrix.postScale(mScale, mScale, mDoubleTab.x, mDoubleTab.y);
                 mAnimaMatrix.postTranslate(mTranslateX, mTranslateY);
                 executeTranslate();
-                postOnAnimation(this);
+                post(this);
             } else {
                 isRuning = false;
             }
