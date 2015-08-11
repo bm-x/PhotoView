@@ -299,14 +299,18 @@ public class PhotoView extends ImageView {
             float vy = velocityY;
 
             if (Math.round(mImgRect.left) >= mWidgetRect.left || Math.round(mImgRect.right) <= mWidgetRect.right) {
-                if (imgLargeWidth) return false;
-                else vx = 0;
-            }
-            if (Math.round(mImgRect.top) >= mWidgetRect.top || Math.round(mImgRect.bottom) <= mWidgetRect.bottom) {
-                if (imgLargeHeight) return false;
-                else vy = 0;
+//                if (imgLargeWidth) return false;
+//                else
+                vx = 0;
             }
 
+            if (Math.round(mImgRect.top) >= mWidgetRect.top || Math.round(mImgRect.bottom) <= mWidgetRect.bottom) {
+//                if (imgLargeHeight) return false;
+//                else
+                vy = 0;
+            }
+
+            doTranslateReset(mImgRect);
             mTranslate.withFling(vx, vy);
             mTranslate.start();
 
@@ -417,8 +421,11 @@ public class PhotoView extends ImageView {
         OverScroller mFlingScroller;
         Scroller mScaleScroller;
 
-        int mLastX;
-        int mLastY;
+        int mLastFlingX;
+        int mLastFlingY;
+
+        int mLastTranslateX;
+        int mLastTranslateY;
 
         Transform() {
             mTranslateScroller = new OverScroller(getContext(), new DecelerateInterpolator());
@@ -427,7 +434,9 @@ public class PhotoView extends ImageView {
         }
 
         void withTranslate(int startX, int startY, int deltaX, int deltaY) {
-            mTranslateScroller.startScroll(startX, startY, deltaX, deltaY, ANIMA_DURING);
+            mLastTranslateX = 0;
+            mLastTranslateY = 0;
+            mTranslateScroller.startScroll(0, 0, deltaX, deltaY, ANIMA_DURING);
         }
 
         void withScale(float form, float to) {
@@ -435,7 +444,7 @@ public class PhotoView extends ImageView {
         }
 
         void withFling(float velocityX, float velocityY) {
-            mLastX = velocityX < 0 ? Integer.MAX_VALUE : 0;
+            mLastFlingX = velocityX < 0 ? Integer.MAX_VALUE : 0;
             int distanceX = (int) (velocityX > 0 ? Math.abs(mImgRect.left) : mImgRect.right - mWidgetRect.right);
             distanceX = velocityX < 0 ? Integer.MAX_VALUE - distanceX : distanceX;
             int minX = velocityX < 0 ? distanceX : 0;
@@ -443,7 +452,7 @@ public class PhotoView extends ImageView {
             int overX = velocityX < 0 ? Integer.MAX_VALUE - minX : distanceX;
 
 
-            mLastY = velocityY < 0 ? Integer.MAX_VALUE : 0;
+            mLastFlingY = velocityY < 0 ? Integer.MAX_VALUE : 0;
             int distanceY = (int) (velocityY > 0 ? Math.abs(mImgRect.top) : mImgRect.bottom - mWidgetRect.bottom);
             distanceY = velocityY < 0 ? Integer.MAX_VALUE - distanceY : distanceY;
             int minY = velocityY < 0 ? distanceY : 0;
@@ -459,7 +468,7 @@ public class PhotoView extends ImageView {
                 minY = 0;
             }
 
-            mFlingScroller.fling(mLastX, mLastY, (int) velocityX, (int) velocityY, minX, maxX, minY, maxY, Math.abs(overX) < MAX_FLING_OVER_SCROLL * 2 ? 0 : MAX_FLING_OVER_SCROLL, Math.abs(overY) < MAX_FLING_OVER_SCROLL * 2 ? 0 : MAX_FLING_OVER_SCROLL);
+            mFlingScroller.fling(mLastFlingX, mLastFlingY, (int) velocityX, (int) velocityY, minX, maxX, minY, maxY, Math.abs(overX) < MAX_FLING_OVER_SCROLL * 2 ? 0 : MAX_FLING_OVER_SCROLL, Math.abs(overY) < MAX_FLING_OVER_SCROLL * 2 ? 0 : MAX_FLING_OVER_SCROLL);
         }
 
         void start() {
@@ -493,17 +502,21 @@ public class PhotoView extends ImageView {
             }
 
             if (mTranslateScroller.computeScrollOffset()) {
-                mTranslateX = mTranslateScroller.getCurrX();
-                mTranslateY = mTranslateScroller.getCurrY();
+                int tx = mTranslateScroller.getCurrX() - mLastTranslateX;
+                int ty = mTranslateScroller.getCurrY() - mLastTranslateY;
+                mTranslateX += tx;
+                mTranslateY += ty;
+                mLastTranslateX = mTranslateScroller.getCurrX();
+                mLastTranslateY = mTranslateScroller.getCurrY();
                 endAnima = false;
             }
 
             if (mFlingScroller.computeScrollOffset()) {
-                int x = mFlingScroller.getCurrX() - mLastX;
-                int y = mFlingScroller.getCurrY() - mLastY;
+                int x = mFlingScroller.getCurrX() - mLastFlingX;
+                int y = mFlingScroller.getCurrY() - mLastFlingY;
 
-                mLastX = mFlingScroller.getCurrX();
-                mLastY = mFlingScroller.getCurrY();
+                mLastFlingX = mFlingScroller.getCurrX();
+                mLastFlingY = mFlingScroller.getCurrY();
 
                 mTranslateX += x;
                 mTranslateY += y;
