@@ -6,6 +6,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -463,6 +464,7 @@ public class PhotoView extends ImageView {
                 maxX = 0;
                 minX = 0;
             }
+
             if (velocityY == 0) {
                 maxY = 0;
                 minY = 0;
