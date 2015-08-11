@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="C:\workspace\AndroidStudio\PhotoView\library\src\main\res"/><source path="C:\workspace\AndroidStudio\PhotoView\library\build\generated\res\rs\debug"/><source path="C:\workspace\AndroidStudio\PhotoView\library\build\generated\res\generated\debug"/></dataSet><dataSet config="debug"><source path="C:\workspace\AndroidStudio\PhotoView\library\src\debug\res"/></dataSet><mergedItems/></merger>

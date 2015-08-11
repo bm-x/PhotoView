@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.OverScroller;
 import android.widget.Scroller;
@@ -21,6 +22,7 @@ import android.widget.Scroller;
  */
 public class PhotoView extends ImageView {
 
+    private final static int ANIMA_DURING = 310;
     private final static float MAX_SCALE = 2.5f;
     private int MAX_OVER_SCROLL = 0;
     private int MAX_FLING_OVER_SCROLL = 0;
@@ -55,6 +57,8 @@ public class PhotoView extends ImageView {
     private PointF mDoubleTab = new PointF();
 
     private Transform mTranslate = new Transform();
+
+    private float[] mValues = new float[16];
 
     public PhotoView(Context context) {
         super(context);
@@ -174,7 +178,6 @@ public class PhotoView extends ImageView {
     }
 
     private void onUp(MotionEvent ev) {
-
         float scale = mScale;
         if (mScale < 1) {
             scale = 1;
@@ -184,6 +187,17 @@ public class PhotoView extends ImageView {
             mTranslate.withScale(mScale, MAX_SCALE);
         }
 
+        mAnimaMatrix.getValues(mValues);
+        float s = mValues[Matrix.MSCALE_X];
+        float tx = mValues[Matrix.MTRANS_X];
+        float ty = mValues[Matrix.MTRANS_Y];
+
+        float cpx = tx - mTranslateX;
+        float cpy = ty - mTranslateY;
+
+        mDoubleTab.x = -cpx / (s - 1);
+        mDoubleTab.y = -cpy / (s - 1);
+
         mTmpRect.set(mImgRect);
 
         mTmpMatrix.setScale(scale, scale, mDoubleTab.x, mDoubleTab.y);
@@ -192,6 +206,23 @@ public class PhotoView extends ImageView {
 
         doTranslateReset(mTmpRect);
         mTranslate.start();
+
+//        mAnimaMatrix.getValues(mValues);
+//        float s = mValues[Matrix.MSCALE_X];
+//        float tx = mValues[Matrix.MTRANS_X];
+//        float ty = mValues[Matrix.MTRANS_Y];
+//
+//        Log.e("bm", "onUp " + mDoubleTab.x + "    " + mDoubleTab.y);
+//        Log.i("bm", "onUp " + s + "   " + tx + "   " + ty + "   " + mTranslateX + "   " + mTranslateY);
+//
+//        float cpx = tx - mTranslateX;
+//        float cpy = ty - mTranslateY;
+//
+//        mAnimaMatrix.reset();
+////        mAnimaMatrix.postTranslate(-cpx, -cpy);
+//        mAnimaMatrix.postScale(s, s, -cpx, -cpy);
+//        mAnimaMatrix.postTranslate(mTranslateX, mTranslateY);
+//        executeTranslate();
     }
 
     private void doTranslateReset(RectF imgRect) {
@@ -271,7 +302,6 @@ public class PhotoView extends ImageView {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
             if (mTranslate.isRuning) {
                 mTranslate.stop();
             }
@@ -381,11 +411,11 @@ public class PhotoView extends ImageView {
         }
 
         void withTranslate(int startX, int startY, int deltaX, int deltaY) {
-            mTranslateScroller.startScroll(startX, startY, deltaX, deltaY);
+            mTranslateScroller.startScroll(startX, startY, deltaX, deltaY, ANIMA_DURING);
         }
 
         void withScale(float form, float to) {
-            mScaleScroller.startScroll((int) (form * 10000), 0, (int) ((to - form) * 10000), 0);
+            mScaleScroller.startScroll((int) (form * 10000), 0, (int) ((to - form) * 10000), 0, ANIMA_DURING);
         }
 
         void withFling(float velocityX, float velocityY) {

@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:orientation="horizontal"
         android:layout_height="wrap_content">
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -25,7 +26,6 @@
             android:onClick="translate"
             android:text="移动" />
     </LinearLayout>
-
 
     <com.example.bm.photoview.PhotoView
         android:id="@+id/img"
