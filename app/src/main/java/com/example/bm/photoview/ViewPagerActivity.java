@@ -11,7 +11,7 @@ public class ViewPagerActivity extends Activity {
 
     private ViewPager mPager;
 
-    private int[] imgsId = new int[]{R.mipmap.aaa, R.mipmap.bbb, R.mipmap.ic_launcher, R.mipmap.image003};
+    private int[] imgsId = new int[]{R.mipmap.aaa, R.mipmap.bbb, R.mipmap.ccc, R.mipmap.ic_launcher, R.mipmap.image003};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
