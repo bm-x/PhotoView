@@ -24,6 +24,7 @@ public class PhotoView extends ImageView {
     private final static float MAX_SCALE = 2.5f;
     private int MAX_OVER_SCROLL = 0;
     private int MAX_FLING_OVER_SCROLL = 0;
+    private int MAX_OVER_RESISTANCE = 0;
 
     private Matrix mBaseMatrix = new Matrix();
     private Matrix mAnimaMatrix = new Matrix();
@@ -49,6 +50,7 @@ public class PhotoView extends ImageView {
     private RectF mBaseRect = new RectF();
     private RectF mImgRect = new RectF();
     private RectF mTmpRect = new RectF();
+    private RectF mCommonRect = new RectF();
 
     private PointF mScreenCenter = new PointF();
     private PointF mDoubleTab = new PointF();
@@ -76,8 +78,10 @@ public class PhotoView extends ImageView {
         setScaleType(ScaleType.MATRIX);
         mDetector = new GestureDetector(getContext(), mGestureListener);
         mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
-        MAX_OVER_SCROLL = (int) (getResources().getDisplayMetrics().density * 30);
-        MAX_FLING_OVER_SCROLL = (int) (getResources().getDisplayMetrics().density * 30);
+        float density = getResources().getDisplayMetrics().density;
+        MAX_OVER_SCROLL = (int) (density * 30);
+        MAX_FLING_OVER_SCROLL = (int) (density * 30);
+        MAX_OVER_RESISTANCE = (int) (density * 140);
     }
 
     @Override
@@ -166,7 +170,6 @@ public class PhotoView extends ImageView {
         }
     }
 
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         super.dispatchTouchEvent(event);
@@ -252,7 +255,6 @@ public class PhotoView extends ImageView {
         return Math.round(mImgRect.left) == (mWidgetRect.width() - mImgRect.width()) / 2;
     }
 
-
     private ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -281,6 +283,47 @@ public class PhotoView extends ImageView {
         }
     };
 
+    private float resistanceScrollByX(float overScroll, float detalX) {
+        float s = detalX * (Math.abs(Math.abs(overScroll) - MAX_OVER_RESISTANCE) / (float) MAX_OVER_RESISTANCE);
+        return s;
+    }
+
+    private float resistanceScrollByY(float overScroll, float detalY) {
+        float s = detalY * (Math.abs(Math.abs(overScroll) - MAX_OVER_RESISTANCE) / (float) MAX_OVER_RESISTANCE);
+        return s;
+    }
+
+    /**
+     * 匹配两个Rect的共同部分输出到out，若无共同部分则输出0，0，0，0
+     */
+    private void mapRect(RectF r1, RectF r2, RectF out) {
+        float l, r, t, b;
+
+        l = r1.left > r2.left ? r1.left : r2.left;
+        r = r1.right < r2.right ? r1.right : r2.right;
+
+        if (l > r) {
+            out.set(0, 0, 0, 0);
+            return;
+        }
+
+        t = r1.top > r2.top ? r1.top : r2.top;
+        b = r1.bottom < r2.bottom ? r1.bottom : r2.bottom;
+
+        if (t > b) {
+            out.set(0, 0, 0, 0);
+            return;
+        }
+
+        out.set(l, t, r, b);
+    }
+
+    private void checkRect() {
+        if (!hasOverTranslate) {
+            mapRect(mWidgetRect, mImgRect, mCommonRect);
+        }
+    }
+
     private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -300,14 +343,10 @@ public class PhotoView extends ImageView {
             float vy = velocityY;
 
             if (Math.round(mImgRect.left) >= mWidgetRect.left || Math.round(mImgRect.right) <= mWidgetRect.right) {
-//                if (imgLargeWidth) return false;
-//                else
                 vx = 0;
             }
 
             if (Math.round(mImgRect.top) >= mWidgetRect.top || Math.round(mImgRect.bottom) <= mWidgetRect.bottom) {
-//                if (imgLargeHeight) return false;
-//                else
                 vy = 0;
             }
 
@@ -333,8 +372,16 @@ public class PhotoView extends ImageView {
                 mAnimaMatrix.postTranslate(-distanceX, 0);
                 mTranslateX -= distanceX;
             } else if (imgLargeWidth || hasMultiTouch || hasOverTranslate) {
-                mAnimaMatrix.postTranslate(-distanceX, 0);
+                checkRect();
+                if (!hasMultiTouch) {
+                    if (distanceX < 0 && mImgRect.left - distanceX > mCommonRect.left)
+                        distanceX = resistanceScrollByX(mImgRect.left - mCommonRect.left, distanceX);
+                    if (distanceX > 0 && mImgRect.right - distanceX < mCommonRect.right)
+                        distanceX = resistanceScrollByX(mImgRect.right - mCommonRect.right, distanceX);
+                }
+
                 mTranslateX -= distanceX;
+                mAnimaMatrix.postTranslate(-distanceX, 0);
                 hasOverTranslate = true;
             }
 
@@ -347,6 +394,14 @@ public class PhotoView extends ImageView {
                 mAnimaMatrix.postTranslate(0, -distanceY);
                 mTranslateY -= distanceY;
             } else if (imgLargeHeight || hasOverTranslate || hasMultiTouch) {
+                checkRect();
+                if (!hasMultiTouch) {
+                    if (distanceY < 0 && mImgRect.top - distanceY > mCommonRect.top)
+                        distanceY = resistanceScrollByY(mImgRect.top - mCommonRect.top, distanceY);
+                    if (distanceY > 0 && mImgRect.bottom - distanceY < mCommonRect.bottom)
+                        distanceY = resistanceScrollByY(mImgRect.bottom - mCommonRect.bottom, distanceY);
+                }
+
                 mAnimaMatrix.postTranslate(0, -distanceY);
                 mTranslateY -= distanceY;
                 hasOverTranslate = true;
@@ -404,13 +459,13 @@ public class PhotoView extends ImageView {
 
     @Override
     public boolean canScrollHorizontally(int direction) {
-//        if (hasTranslate) return false;
+        if (hasMultiTouch) return true;
         return canScrollHorizontallySelf(direction);
     }
 
     @Override
     public boolean canScrollVertically(int direction) {
-//        if (hasTranslate) return false;
+        if (hasMultiTouch) return true;
         return canScrollVerticallySelf(direction);
     }
 
