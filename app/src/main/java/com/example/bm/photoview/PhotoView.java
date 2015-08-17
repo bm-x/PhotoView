@@ -617,4 +617,5 @@ public class PhotoView extends ImageView {
             }
         }
     }
+
 }
