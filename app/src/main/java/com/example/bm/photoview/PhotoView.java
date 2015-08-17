@@ -34,6 +34,8 @@ public class PhotoView extends ImageView {
     private GestureDetector mDetector;
     private ScaleGestureDetector mScaleDetector;
 
+    private ScaleType mScaleType;
+
     private boolean hasMultiTouch;
     private boolean hasDrawable;
     private boolean isKnowSize;
@@ -75,7 +77,7 @@ public class PhotoView extends ImageView {
     }
 
     private void init() {
-        setScaleType(ScaleType.MATRIX);
+        super.setScaleType(ScaleType.MATRIX);
         mDetector = new GestureDetector(getContext(), mGestureListener);
         mScaleDetector = new ScaleGestureDetector(getContext(), mScaleListener);
         float density = getResources().getDisplayMetrics().density;
@@ -86,7 +88,9 @@ public class PhotoView extends ImageView {
 
     @Override
     public void setScaleType(ScaleType scaleType) {
-        super.setScaleType(ScaleType.MATRIX);
+        mScaleType = scaleType;
+
+        if (mScaleType != scaleType) doInit();
     }
 
     @Override
