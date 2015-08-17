@@ -5,11 +5,13 @@ import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.OverScroller;
@@ -33,6 +35,7 @@ public class PhotoView extends ImageView {
 
     private GestureDetector mDetector;
     private ScaleGestureDetector mScaleDetector;
+    private OnClickListener mClickListener;
 
     private boolean hasMultiTouch;
     private boolean hasDrawable;
@@ -82,6 +85,11 @@ public class PhotoView extends ImageView {
         MAX_OVER_SCROLL = (int) (density * 30);
         MAX_FLING_OVER_SCROLL = (int) (density * 30);
         MAX_OVER_RESISTANCE = (int) (density * 140);
+    }
+
+    @Override
+    public void setOnClickListener(OnClickListener l) {
+        mClickListener = l;
     }
 
     @Override
@@ -324,12 +332,20 @@ public class PhotoView extends ImageView {
         }
     }
 
+    private Runnable mClickRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mClickListener.onClick(PhotoView.this);
+        }
+    };
+
     private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
         public boolean onDown(MotionEvent e) {
             hasOverTranslate = false;
             hasMultiTouch = false;
+            removeCallbacks(mClickRunnable);
             return super.onDown(e);
         }
 
@@ -409,6 +425,12 @@ public class PhotoView extends ImageView {
 
             executeTranslate();
             return true;
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            postDelayed(mClickRunnable, 250);
+            return false;
         }
 
         @Override
