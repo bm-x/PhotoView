@@ -98,7 +98,7 @@ public class PhotoView extends ImageView {
     public void setScaleType(ScaleType scaleType) {
         mScaleType = scaleType;
 
-        if (mScaleType != scaleType) doInit();
+        if (mScaleType != scaleType) initBase();
     }
 
     @Override
@@ -114,10 +114,10 @@ public class PhotoView extends ImageView {
             hasDrawable = true;
         }
 
-        doInit();
+        initBase();
     }
 
-    private void doInit() {
+    private void initBase() {
         if (!hasDrawable) return;
         if (!isKnowSize) return;
 
@@ -158,6 +158,10 @@ public class PhotoView extends ImageView {
         executeTranslate();
     }
 
+    private void initCenter(){
+
+    }
+
     private void executeTranslate() {
         mSynthesisMatrix.set(mBaseMatrix);
         mSynthesisMatrix.postConcat(mAnimaMatrix);
@@ -178,7 +182,7 @@ public class PhotoView extends ImageView {
 
         if (!isKnowSize) {
             isKnowSize = true;
-            doInit();
+            initBase();
         }
     }
 
@@ -339,7 +343,9 @@ public class PhotoView extends ImageView {
     private Runnable mClickRunnable = new Runnable() {
         @Override
         public void run() {
-            mClickListener.onClick(PhotoView.this);
+            if (mClickListener != null) {
+                mClickListener.onClick(PhotoView.this);
+            }
         }
     };
 
