@@ -16,14 +16,12 @@ import android.widget.ImageView;
 import android.widget.OverScroller;
 import android.widget.Scroller;
 
-import java.sql.Ref;
-
 /**
  * Created by bm on 2015/6/21.
  */
 public class PhotoView extends ImageView {
 
-    private final static int ANIMA_DURING = 340;
+    private final static int ANIMA_DURING = 300;
     private final static float MAX_SCALE = 2.5f;
     private int MAX_OVER_SCROLL = 0;
     private int MAX_FLING_OVER_SCROLL = 0;
@@ -65,6 +63,7 @@ public class PhotoView extends ImageView {
 
     private Transform mTranslate = new Transform();
 
+    private RectF mClip;
     private Info mInfo;
     private Info mOldInfo;
     private Runnable mCompleteCallBack;
@@ -105,9 +104,11 @@ public class PhotoView extends ImageView {
 
     @Override
     public void setScaleType(ScaleType scaleType) {
+        ScaleType old = mScaleType;
         mScaleType = scaleType;
 
-        if (mScaleType != scaleType) initBase();
+        if (old != scaleType)
+            initBase();
     }
 
     public void enable() {
@@ -142,6 +143,7 @@ public class PhotoView extends ImageView {
         if (!isKnowSize) return;
 
         mBaseMatrix.reset();
+        mAnimaMatrix.reset();
 
         Drawable img = getDrawable();
 
@@ -321,6 +323,14 @@ public class PhotoView extends ImageView {
     }
 
     @Override
+    public void draw(Canvas canvas) {
+        if (mClip != null) {
+            canvas.clipRect(mClip);
+        }
+        super.draw(canvas);
+    }
+
+    @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         if (isEnable) {
             mDetector.onTouchEvent(event);
@@ -328,7 +338,7 @@ public class PhotoView extends ImageView {
             final int Action = event.getAction();
             if (Action == MotionEvent.ACTION_UP || Action == MotionEvent.ACTION_CANCEL) onUp(event);
         } else {
-            super.dispatchTouchEvent(event);
+            return super.dispatchTouchEvent(event);
         }
         return true;
     }
@@ -647,6 +657,7 @@ public class PhotoView extends ImageView {
         OverScroller mTranslateScroller;
         OverScroller mFlingScroller;
         Scroller mScaleScroller;
+        Scroller mClipScroll;
 
         int mLastFlingX;
         int mLastFlingY;
@@ -654,10 +665,15 @@ public class PhotoView extends ImageView {
         int mLastTranslateX;
         int mLastTranslateY;
 
+        RectF mClipRect = new RectF();
+
         Transform() {
-            mTranslateScroller = new OverScroller(getContext(), new DecelerateInterpolator());
-            mScaleScroller = new Scroller(getContext(), new DecelerateInterpolator());
-            mFlingScroller = new OverScroller(getContext(), new DecelerateInterpolator());
+            Context ctx = getContext();
+            DecelerateInterpolator i = new DecelerateInterpolator();
+            mTranslateScroller = new OverScroller(ctx, i);
+            mScaleScroller = new Scroller(ctx, i);
+            mFlingScroller = new OverScroller(ctx, i);
+            mClipScroll = new Scroller(ctx, i);
         }
 
         void withTranslate(int startX, int startY, int deltaX, int deltaY) {
@@ -670,6 +686,10 @@ public class PhotoView extends ImageView {
             mScaleScroller.startScroll((int) (form * 10000), 0, (int) ((to - form) * 10000), 0, ANIMA_DURING);
         }
 
+        void withClip(float fromX, float fromY, float deltaX, float deltaY) {
+            mClipScroll.startScroll((int) (fromX * 10000), (int) (fromY * 10000), (int) (deltaX * 10000), (int) (deltaY * 10000), ANIMA_DURING/2);
+        }
+
         void withFling(float velocityX, float velocityY) {
             mLastFlingX = velocityX < 0 ? Integer.MAX_VALUE : 0;
             int distanceX = (int) (velocityX > 0 ? Math.abs(mImgRect.left) : mImgRect.right - mWidgetRect.right);
@@ -677,7 +697,6 @@ public class PhotoView extends ImageView {
             int minX = velocityX < 0 ? distanceX : 0;
             int maxX = velocityX < 0 ? Integer.MAX_VALUE : distanceX;
             int overX = velocityX < 0 ? Integer.MAX_VALUE - minX : distanceX;
-
 
             mLastFlingY = velocityY < 0 ? Integer.MAX_VALUE : 0;
             int distanceY = (int) (velocityY > 0 ? Math.abs(mImgRect.top) : mImgRect.bottom - mWidgetRect.bottom);
@@ -702,10 +721,6 @@ public class PhotoView extends ImageView {
         void start() {
             isRuning = true;
             post(this);
-        }
-
-        void stopSelf() {
-            removeCallbacks(this);
         }
 
         void stop() {
@@ -751,6 +766,25 @@ public class PhotoView extends ImageView {
                 endAnima = false;
             }
 
+            if (mClipScroll.computeScrollOffset()) {
+                float sx = mClipScroll.getCurrX() / 10000f;
+                float sy = mClipScroll.getCurrY() / 10000f;
+                mTmpMatrix.setScale(sx, sy, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
+                mTmpMatrix.mapRect(mClipRect, mImgRect);
+
+                if (sx == 1) {
+                    mClipRect.left = mWidgetRect.left;
+                    mClipRect.right = mWidgetRect.right;
+                }
+
+                if (sy == 1) {
+                    mClipRect.top = mWidgetRect.top;
+                    mClipRect.bottom = mWidgetRect.bottom;
+                }
+
+                mClip = mClipRect;
+            }
+
             if (!endAnima) {
                 mAnimaMatrix.reset();
                 mAnimaMatrix.postScale(mScale, mScale, mDoubleTab.x, mDoubleTab.y);
@@ -759,6 +793,8 @@ public class PhotoView extends ImageView {
                 post(this);
             } else {
                 isRuning = false;
+                mClip = null;
+                invalidate();
 
                 if (mCompleteCallBack != null) {
                     mCompleteCallBack.run();
@@ -776,8 +812,19 @@ public class PhotoView extends ImageView {
         return new Info(rect, mWidgetRect, mScale);
     }
 
+    private void reset() {
+        mAnimaMatrix.reset();
+        executeTranslate();
+        mScale = 1;
+        mTranslateX = 0;
+        mTranslateY = 0;
+    }
+
     public void animaFrom(Info info) {
         if (isInit) {
+
+            reset();
+
             Info mine = getInfo();
 
             float scaleX = info.mRect.width() / mine.mRect.width();
@@ -804,6 +851,18 @@ public class PhotoView extends ImageView {
 
             mTranslate.withScale(s, mScale);
             mTranslate.withTranslate(mTranslateX, mTranslateY, (int) -tx, (int) -ty);
+
+            if (info.mWidgetRect.width() < info.mRect.width() || info.mWidgetRect.height() < info.mRect.height()) {
+                float clipX = info.mWidgetRect.width() / info.mRect.width();
+                float clipY = info.mWidgetRect.height() / info.mRect.height();
+                clipX = clipX > 1 ? 1 : clipX;
+                clipY = clipY > 1 ? 1 : clipY;
+                mTranslate.withClip(clipX, clipY, 1 - clipX, 1 - clipY);
+
+                mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
+                mTmpMatrix.mapRect(mTranslate.mClipRect, mImgRect);
+                mClip = mTranslate.mClipRect;
+            }
 
             mTranslate.start();
         } else {
@@ -834,6 +893,19 @@ public class PhotoView extends ImageView {
 
             mTranslate.withScale(mScale, mValues[Matrix.MSCALE_X]);
             mTranslate.withTranslate(mTranslateX, mTranslateY, tx, ty);
+
+            if (info.mWidgetRect.width() < info.mRect.width() || info.mWidgetRect.height() < info.mRect.height()) {
+                float clipX = info.mWidgetRect.width() / info.mRect.width();
+                float clipY = info.mWidgetRect.height() / info.mRect.height();
+                clipX = clipX > 1 ? 1 : clipX;
+                clipY = clipY > 1 ? 1 : clipY;
+                mTranslate.withClip(1, 1, -1 + clipX, -1 + clipY);
+
+                mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
+                mTmpMatrix.mapRect(mTranslate.mClipRect, mImgRect);
+                mClip = mTranslate.mClipRect;
+            }
+
             mTranslate.start();
         }
     }

@@ -24,6 +24,14 @@
             android:name=".ViewPagerActivity"
             android:label="@string/title_activity_view_pager" >
         </activity>
+        <activity
+            android:name=".ImgClick"
+            android:label="@string/title_activity_img_click" >
+        </activity>
+        <activity
+            android:name=".PhotoBrowse"
+            android:label="@string/title_activity_photo_browse" >
+        </activity>
     </application>
 
 </manifest>

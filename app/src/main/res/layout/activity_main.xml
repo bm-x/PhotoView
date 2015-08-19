@@ -1,8 +1,7 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -11,20 +10,31 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/img"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="img"
         android:layout_centerHorizontal="true"
+        android:onClick="img"
         android:text="单个imageview" />
 
     <Button
-        android:layout_marginTop="20dp"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="viewpager"
-        android:layout_below="@+id/img"
-        android:text="ViewPager" />
+        android:layout_centerHorizontal="true"
+        android:onClick="imgclick"
+        android:text="单个imageview点击放大" />
 
-</RelativeLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:onClick="viewpager"
+        android:text="普通ViewPager" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:onClick="photobrowse"
+        android:text="ImageView点击浏览大图" />
+
+</LinearLayout>

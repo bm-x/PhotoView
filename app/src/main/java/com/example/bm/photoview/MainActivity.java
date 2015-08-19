@@ -14,11 +14,19 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
     }
 
-    public void img(View view){
-        startActivity(new Intent(this,ImgActivity.class));
+    public void img(View view) {
+        startActivity(new Intent(this, ImgActivity.class));
     }
 
-    public void viewpager(View  view){
-        startActivity(new Intent(this,ViewPagerActivity.class));
+    public void viewpager(View view) {
+        startActivity(new Intent(this, ViewPagerActivity.class));
+    }
+
+    public void imgclick(View view) {
+        startActivity(new Intent(this, ImgClick.class));
+    }
+
+    public void photobrowse(View view) {
+        startActivity(new Intent(this, PhotoBrowse.class));
     }
 }
