@@ -7,11 +7,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bm.library.PhotoView;
+
 public class ViewPagerActivity extends Activity {
 
     private ViewPager mPager;
 
-    private int[] imgsId = new int[]{R.mipmap.aaa, R.mipmap.bbb, R.mipmap.ccc, R.mipmap.ic_launcher, R.mipmap.image003};
+    private int[] imgsId = new int[]{R.mipmap.aaa, R.mipmap.bbb, R.mipmap.ccc, R.mipmap.ddd, R.mipmap.ic_launcher, R.mipmap.image003};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
