@@ -686,8 +686,8 @@ public class PhotoView extends ImageView {
             mScaleScroller.startScroll((int) (form * 10000), 0, (int) ((to - form) * 10000), 0, ANIMA_DURING);
         }
 
-        void withClip(float fromX, float fromY, float deltaX, float deltaY) {
-            mClipScroll.startScroll((int) (fromX * 10000), (int) (fromY * 10000), (int) (deltaX * 10000), (int) (deltaY * 10000), ANIMA_DURING/2);
+        void withClip(float fromX, float fromY, float deltaX, float deltaY, int d) {
+            mClipScroll.startScroll((int) (fromX * 10000), (int) (fromY * 10000), (int) (deltaX * 10000), (int) (deltaY * 10000), d);
         }
 
         void withFling(float velocityX, float velocityY) {
@@ -766,7 +766,7 @@ public class PhotoView extends ImageView {
                 endAnima = false;
             }
 
-            if (mClipScroll.computeScrollOffset()) {
+            if (mClipScroll.computeScrollOffset() || mClip != null) {
                 float sx = mClipScroll.getCurrX() / 10000f;
                 float sy = mClipScroll.getCurrY() / 10000f;
                 mTmpMatrix.setScale(sx, sy, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
@@ -857,7 +857,7 @@ public class PhotoView extends ImageView {
                 float clipY = info.mWidgetRect.height() / info.mRect.height();
                 clipX = clipX > 1 ? 1 : clipX;
                 clipY = clipY > 1 ? 1 : clipY;
-                mTranslate.withClip(clipX, clipY, 1 - clipX, 1 - clipY);
+                mTranslate.withClip(clipX, clipY, 1 - clipX, 1 - clipY, ANIMA_DURING / 3);
 
                 mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
                 mTmpMatrix.mapRect(mTranslate.mClipRect, mImgRect);
@@ -899,7 +899,7 @@ public class PhotoView extends ImageView {
                 float clipY = info.mWidgetRect.height() / info.mRect.height();
                 clipX = clipX > 1 ? 1 : clipX;
                 clipY = clipY > 1 ? 1 : clipY;
-                mTranslate.withClip(1, 1, -1 + clipX, -1 + clipY);
+                mTranslate.withClip(1, 1, -1 + clipX, -1 + clipY, ANIMA_DURING);
 
                 mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
                 mTmpMatrix.mapRect(mTranslate.mClipRect, mImgRect);
