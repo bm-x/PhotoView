@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     tools:context="com.example.bm.photoview.ImgClick">
 
-
     <RadioGroup
         android:id="@+id/group"
         android:layout_width="wrap_content"
@@ -33,6 +32,7 @@
             android:id="@+id/center_crop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="true"
             android:text="center_crop" />
 
         <RadioButton

@@ -1,11 +1,7 @@
 package com.example.bm.photoview;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
@@ -13,6 +9,9 @@ import android.widget.RadioGroup;
 import com.bm.library.Info;
 import com.bm.library.PhotoView;
 
+/**
+ * Created by liuheng on 2015/6/21.
+ */
 public class ImgClick extends Activity implements RadioGroup.OnCheckedChangeListener {
 
     Info mRectF;
@@ -38,7 +37,7 @@ public class ImgClick extends Activity implements RadioGroup.OnCheckedChangeList
                 mImg1.setVisibility(View.GONE);
                 mImg2.setVisibility(View.VISIBLE);
 
-                //获取img1的图片位置信息
+                //获取img1的信息
                 mRectF = mImg1.getInfo();
                 //让img2从img1的位置变换到他本身的位置
                 mImg2.animaFrom(mRectF);
@@ -61,6 +60,21 @@ public class ImgClick extends Activity implements RadioGroup.OnCheckedChangeList
     }
 
     @Override
+    public void onBackPressed() {
+        if (mImg2.getVisibility() == View.VISIBLE) {
+            mImg2.animaTo(mRectF, new Runnable() {
+                @Override
+                public void run() {
+                    mImg2.setVisibility(View.GONE);
+                    mImg1.setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
 
         switch (checkedId) {
@@ -76,6 +90,8 @@ public class ImgClick extends Activity implements RadioGroup.OnCheckedChangeList
             case R.id.fit_center:
                 mImg1.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 break;
+
+            // 建议用了fit_Xy,fit_end,fit_start就不要使用缩放或者animaFrom或animaTo
             case R.id.fit_end:
                 mImg1.setScaleType(ImageView.ScaleType.FIT_END);
                 break;
@@ -83,7 +99,6 @@ public class ImgClick extends Activity implements RadioGroup.OnCheckedChangeList
                 mImg1.setScaleType(ImageView.ScaleType.FIT_START);
                 break;
             case R.id.fit_xy:
-                // 建议用了fit_Xy就不要使用缩放或者animaFrom或animaTo
                 mImg1.setScaleType(ImageView.ScaleType.FIT_XY);
                 break;
         }

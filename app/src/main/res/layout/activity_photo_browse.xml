@@ -2,20 +2,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.bm.photoview.PhotoBrowse">
 
     <GridView
         android:id="@+id/gv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_margin="15dp"
         android:horizontalSpacing="5dp"
         android:numColumns="3"
         android:verticalSpacing="5dp"></GridView>
-
 
     <FrameLayout
         android:id="@+id/parent"
@@ -27,8 +23,7 @@
             android:id="@+id/bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0"
-            android:background="@android:color/black" />
+            android:background="#ff000000" />
 
         <com.bm.library.PhotoView
             android:id="@+id/img"

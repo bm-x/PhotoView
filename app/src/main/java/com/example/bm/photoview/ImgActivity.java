@@ -1,16 +1,11 @@
 package com.example.bm.photoview;
 
 import android.app.Activity;
-import android.graphics.RectF;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.RadioGroup;
 
-import com.bm.library.Info;
-import com.bm.library.PhotoView;
-
+/**
+ * Created by liuheng on 2015/6/21.
+ */
 public class ImgActivity extends Activity {
 
     @Override

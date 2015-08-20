@@ -14,27 +14,31 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:onClick="img"
-        android:text="单个imageview" />
+        android:text="单个ImageView"
+        android:textAllCaps="false" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:onClick="imgclick"
-        android:text="单个imageview点击放大" />
+        android:text="单个Imageview点击放大"
+        android:textAllCaps="false" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:onClick="viewpager"
-        android:text="普通ViewPager" />
+        android:text="普通ViewPager"
+        android:textAllCaps="false" />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:onClick="photobrowse"
-        android:text="ImageView点击浏览大图" />
+        android:text="ImageView点击浏览大图"
+        android:textAllCaps="false" />
 
 </LinearLayout>

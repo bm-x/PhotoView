@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 
 import com.bm.library.PhotoView;
 
+/**
+ * Created by liuheng on 2015/8/19.
+ */
 public class ViewPagerActivity extends Activity {
 
     private ViewPager mPager;

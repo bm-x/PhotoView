@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-
+/**
+ * Created by liuheng on 2015/6/21.
+ */
 public class MainActivity extends Activity {
 
     @Override

@@ -1,15 +1,11 @@
 package com.example.bm.photoview;
 
-import android.app.Fragment;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.animation.AlphaAnimation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -19,7 +15,10 @@ import android.widget.ImageView;
 import com.bm.library.Info;
 import com.bm.library.PhotoView;
 
-public class PhotoBrowse extends AppCompatActivity {
+/**
+ * Created by liuheng on 2015/8/19.
+ */
+public class PhotoBrowse extends Activity {
 
     int[] imgs = new int[]{R.mipmap.aaa, R.mipmap.bbb, R.mipmap.ccc, R.mipmap.ddd, R.mipmap.ic_launcher, R.mipmap.image003};
 
@@ -30,10 +29,17 @@ public class PhotoBrowse extends AppCompatActivity {
     PhotoView mPhotoView;
     Info mInfo;
 
+    AlphaAnimation in = new AlphaAnimation(0, 1);
+    AlphaAnimation out = new AlphaAnimation(1, 0);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_photo_browse);
+
+        in.setDuration(300);
+        out.setDuration(300);
 
         mParent = findViewById(R.id.parent);
         mBg = findViewById(R.id.bg);
@@ -57,9 +63,8 @@ public class PhotoBrowse extends AppCompatActivity {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                Log.i("bm", "getView ");
                 PhotoView p = new PhotoView(PhotoBrowse.this);
-                p.setLayoutParams(new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (getResources().getDisplayMetrics().density * 100)));
+                p.setLayoutParams(new AbsListView.LayoutParams((int) (getResources().getDisplayMetrics().density * 100), (int) (getResources().getDisplayMetrics().density * 100)));
                 p.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 p.setImageResource(imgs[position]);
                 // 把PhotoView当普通的控件把触摸功能关掉
@@ -74,9 +79,9 @@ public class PhotoBrowse extends AppCompatActivity {
                 PhotoView p = (PhotoView) view;
                 mInfo = p.getInfo();
 
-                mParent.setVisibility(View.VISIBLE);
-                mBg.animate().alphaBy(1).start();
                 mPhotoView.setImageResource(imgs[position]);
+                mBg.startAnimation(in);
+                mParent.setVisibility(View.VISIBLE);
                 mPhotoView.animaFrom(mInfo);
             }
         });
@@ -84,7 +89,7 @@ public class PhotoBrowse extends AppCompatActivity {
         mPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mBg.animate().alphaBy(-1).start();
+                mBg.startAnimation(out);
                 mPhotoView.animaTo(mInfo, new Runnable() {
                     @Override
                     public void run() {
@@ -93,5 +98,20 @@ public class PhotoBrowse extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mParent.getVisibility() == View.VISIBLE) {
+            mBg.startAnimation(out);
+            mPhotoView.animaTo(mInfo, new Runnable() {
+                @Override
+                public void run() {
+                    mParent.setVisibility(View.GONE);
+                }
+            });
+        } else {
+            super.onBackPressed();
+        }
     }
 }

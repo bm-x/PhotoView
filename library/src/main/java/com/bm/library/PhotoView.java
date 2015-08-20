@@ -7,7 +7,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -17,7 +16,9 @@ import android.widget.OverScroller;
 import android.widget.Scroller;
 
 /**
- * Created by bm on 2015/6/21.
+ * Created by liuheng on 2015/6/21.
+ *
+ * 如有任何意见和建议可邮件  bmme@vip.qq.com
  */
 public class PhotoView extends ImageView {
 
@@ -326,6 +327,7 @@ public class PhotoView extends ImageView {
     public void draw(Canvas canvas) {
         if (mClip != null) {
             canvas.clipRect(mClip);
+            mClip = null;
         }
         super.draw(canvas);
     }
@@ -793,7 +795,6 @@ public class PhotoView extends ImageView {
                 post(this);
             } else {
                 isRuning = false;
-                mClip = null;
                 invalidate();
 
                 if (mCompleteCallBack != null) {
@@ -806,10 +807,12 @@ public class PhotoView extends ImageView {
 
     public Info getInfo() {
         RectF rect = new RectF();
+        RectF local = new RectF();
         int[] p = new int[2];
         getLocationInWindow(p);
         rect.set(p[0] + mImgRect.left, p[1] + mImgRect.top, p[0] + mImgRect.right, p[1] + mImgRect.bottom);
-        return new Info(rect, mWidgetRect, mScale);
+        local.set(p[0], p[1], p[0] + mImgRect.width(), p[1] + mImgRect.height());
+        return new Info(rect, local, mImgRect, mWidgetRect, mScale);
     }
 
     private void reset() {
@@ -822,13 +825,12 @@ public class PhotoView extends ImageView {
 
     public void animaFrom(Info info) {
         if (isInit) {
-
             reset();
 
             Info mine = getInfo();
 
-            float scaleX = info.mRect.width() / mine.mRect.width();
-            float scaleY = info.mRect.height() / mine.mRect.height();
+            float scaleX = info.mImgRect.width() / mine.mImgRect.width();
+            float scaleY = info.mImgRect.height() / mine.mImgRect.height();
 
             float scale = scaleX < scaleY ? scaleX : scaleY;
             float tx = info.mRect.left - mine.mRect.left;
@@ -852,9 +854,9 @@ public class PhotoView extends ImageView {
             mTranslate.withScale(s, mScale);
             mTranslate.withTranslate(mTranslateX, mTranslateY, (int) -tx, (int) -ty);
 
-            if (info.mWidgetRect.width() < info.mRect.width() || info.mWidgetRect.height() < info.mRect.height()) {
-                float clipX = info.mWidgetRect.width() / info.mRect.width();
-                float clipY = info.mWidgetRect.height() / info.mRect.height();
+            if (info.mWidgetRect.width() < info.mImgRect.width() || info.mWidgetRect.height() < info.mImgRect.height()) {
+                float clipX = info.mWidgetRect.width() / info.mImgRect.width();
+                float clipY = info.mWidgetRect.height() / info.mImgRect.height();
                 clipX = clipX > 1 ? 1 : clipX;
                 clipY = clipY > 1 ? 1 : clipY;
                 mTranslate.withClip(clipX, clipY, 1 - clipX, 1 - clipY, ANIMA_DURING / 3);
@@ -872,40 +874,56 @@ public class PhotoView extends ImageView {
 
     public void animaTo(Info info, Runnable completeCallBack) {
         if (isInit) {
-            mCompleteCallBack = completeCallBack;
-
             Info mine = getInfo();
 
-            mDoubleTab.x = mImgRect.left;
-            mDoubleTab.y = mImgRect.top;
+            mDoubleTab.x = 0;
+            mDoubleTab.y = 0;
 
-            float scaleX = info.mRect.width() / mine.mRect.width();
-            float scaleY = info.mRect.height() / mine.mRect.height();
+            mAnimaMatrix.getValues(mValues);
+            mScale = mValues[Matrix.MSCALE_X];
+            mTranslateX = (int) mValues[Matrix.MTRANS_X];
+            mTranslateY = (int) mValues[Matrix.MTRANS_Y];
 
+            // 缩放
+            float scaleX = info.mImgRect.width() / mine.mImgRect.width();
+            float scaleY = info.mImgRect.height() / mine.mImgRect.height();
             float scale = scaleX > scaleY ? scaleX : scaleY;
 
-            int tx = (int) (info.mRect.left - mine.mRect.left);
-            int ty = (int) (info.mRect.top - mine.mRect.top);
-
             mTmpMatrix.set(mAnimaMatrix);
-            mTmpMatrix.postScale(scale, scale);
+            mTmpMatrix.postScale(scale, scale, mDoubleTab.x, mDoubleTab.y);
             mTmpMatrix.getValues(mValues);
+            scale = mValues[Matrix.MSCALE_X];
 
-            mTranslate.withScale(mScale, mValues[Matrix.MSCALE_X]);
-            mTranslate.withTranslate(mTranslateX, mTranslateY, tx, ty);
+            mBaseMatrix.getValues(mValues);
+
+            int tx = (int) (info.mLocalRect.left - mine.mLocalRect.left + info.mImgRect.left - mValues[Matrix.MTRANS_X] * scale);
+            int ty = (int) (info.mLocalRect.top - mine.mLocalRect.top + info.mImgRect.top - mValues[Matrix.MTRANS_Y] * scale);
+
+            mTranslate.withScale(mScale, scale);
+            mTranslate.withTranslate(mTranslateX, mTranslateY, -mTranslateX + tx, -mTranslateY + ty);
 
             if (info.mWidgetRect.width() < info.mRect.width() || info.mWidgetRect.height() < info.mRect.height()) {
                 float clipX = info.mWidgetRect.width() / info.mRect.width();
                 float clipY = info.mWidgetRect.height() / info.mRect.height();
                 clipX = clipX > 1 ? 1 : clipX;
                 clipY = clipY > 1 ? 1 : clipY;
-                mTranslate.withClip(1, 1, -1 + clipX, -1 + clipY, ANIMA_DURING);
+
+                final float cx = clipX;
+                final float cy = clipY;
+
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTranslate.withClip(1, 1, -1 + cx, -1 + cy, ANIMA_DURING / 2);
+                    }
+                }, ANIMA_DURING / 2);
 
                 mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
                 mTmpMatrix.mapRect(mTranslate.mClipRect, mImgRect);
                 mClip = mTranslate.mClipRect;
             }
 
+            mCompleteCallBack = completeCallBack;
             mTranslate.start();
         }
     }
