@@ -7,6 +7,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -43,7 +44,7 @@ public class PhotoView extends ImageView {
     private boolean hasDrawable;
     private boolean isKnowSize;
     private boolean hasOverTranslate;
-    private boolean isEnable = true;
+    private boolean isEnable = false;
     private boolean isInit;
 
     private boolean imgLargeWidth;
@@ -128,6 +129,8 @@ public class PhotoView extends ImageView {
     @Override
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
+
+        if (drawable==null) return;
 
         if (drawable.getIntrinsicHeight() <= 0 || drawable.getIntrinsicWidth() <= 0)
             return;
@@ -874,7 +877,13 @@ public class PhotoView extends ImageView {
 
     public void animaTo(Info info, Runnable completeCallBack) {
         if (isInit) {
+            executeTranslate();
             Info mine = getInfo();
+
+            Log.i("bm", "mine " + mine.mWidgetRect.toShortString() + "  " + mine.mScale + "  "  + mine.mLocalRect.toShortString());
+            Log.i("bm", "to " + info.mWidgetRect.toShortString() + "  " + info.mScale + "  " + info.mLocalRect.toShortString());
+
+            Log.i("bm", "--------------------------------------------");
 
             mDoubleTab.x = 0;
             mDoubleTab.y = 0;
@@ -919,8 +928,6 @@ public class PhotoView extends ImageView {
                 }, ANIMA_DURING / 2);
 
                 mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
-                mTmpMatrix.mapRect(mTranslate.mClipRect, mImgRect);
-                mClip = mTranslate.mClipRect;
             }
 
             mCompleteCallBack = completeCallBack;

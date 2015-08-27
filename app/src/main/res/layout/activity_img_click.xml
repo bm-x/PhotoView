@@ -73,7 +73,6 @@
         android:layout_height="100dp"
         android:layout_marginLeft="15dp"
         android:layout_marginTop="65dp"
-        android:background="@android:color/holo_orange_light"
         android:scaleType="centerCrop"
         android:src="@mipmap/ddd" />
 
