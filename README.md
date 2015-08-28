@@ -5,9 +5,9 @@
 如使用过程中有任何bug，意见或建议，可邮件给我 bmme@vip.qq.com
 
 # Demo
-![PhotoView](./demo1.gif)
-
 ![PhotoView](./demo2.gif)
+
+(./demo1.gif)
 
 v2.0.0  
    ---- 添加animaTo,animaFrom方法，支持图片点击放大缩小浏览功能
