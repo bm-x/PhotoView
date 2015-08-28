@@ -13,8 +13,8 @@ v2.0.1
    修复某些情况下会闪动
 
 v2.0.0  
-   ---- 添加animaTo,animaFrom方法，支持图片点击放大缩小浏览功能
-   ---- 添加enable()和disenable() 打开和关闭触摸缩放方法，默认打开 (当普通ImageView使用的时候建议关闭触摸缩放功能)
-   ---- 支持所有ScaleType属性
+   * 添加animaTo,animaFrom方法，支持图片点击放大缩小浏览功能
+   * 添加enable()和disenable() 打开和关闭触摸缩放方法，默认打开 (当普通ImageView使用的时候建议关闭触摸缩放功能)
+   * 支持所有ScaleType属性
 
 v1.0
