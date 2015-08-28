@@ -4,6 +4,9 @@
 
 如使用过程中有任何bug，意见或建议，可邮件给我 bmme@vip.qq.com
 
+# 效果图
+![PhotoView](./demo2.gif) ![PhotoView](./demo1.gif)
+
 #使用
 
 xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，可以指定固定dp的宽高或者match_parent。 wrap_content属性的支持会在稍后加上
@@ -35,11 +38,6 @@ photoView.animaTo(info,new Runnable() {
        }
    });
 ```
-
-# Demo
-![PhotoView](./demo2.gif)
-
-![PhotoView](./demo1.gif)
 
 v2.0.1
    修复某些情况下会闪动
