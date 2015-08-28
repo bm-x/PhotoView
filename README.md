@@ -6,6 +6,7 @@
 
 # Demo
 ![PhotoView](./demo1.gif)
+
 ![PhotoView](./demo2.gif)
 
 v2.0.0  
