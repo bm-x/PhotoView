@@ -39,6 +39,9 @@ photoView.animaTo(info,new Runnable() {
    });
 ```
 
+
+# 版本
+
 v2.0.1
    修复某些情况下会闪动
 
