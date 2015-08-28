@@ -7,7 +7,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -879,11 +878,6 @@ public class PhotoView extends ImageView {
         if (isInit) {
             executeTranslate();
             Info mine = getInfo();
-
-            Log.i("bm", "mine " + mine.mWidgetRect.toShortString() + "  " + mine.mScale + "  "  + mine.mLocalRect.toShortString());
-            Log.i("bm", "to " + info.mWidgetRect.toShortString() + "  " + info.mScale + "  " + info.mLocalRect.toShortString());
-
-            Log.i("bm", "--------------------------------------------");
 
             mDoubleTab.x = 0;
             mDoubleTab.y = 0;

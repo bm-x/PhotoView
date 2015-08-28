@@ -39,6 +39,7 @@ public class ViewPagerActivity extends Activity {
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
                 PhotoView view = new PhotoView(ViewPagerActivity.this);
+                view.enable();
                 view.setImageResource(imgsId[position]);
                 container.addView(view);
                 return view;

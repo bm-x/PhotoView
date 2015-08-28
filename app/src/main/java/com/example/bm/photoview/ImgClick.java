@@ -29,7 +29,7 @@ public class ImgClick extends Activity implements RadioGroup.OnCheckedChangeList
         mImg1 = (PhotoView) findViewById(R.id.img1);
         mImg2 = (PhotoView) findViewById(R.id.img2);
 
-        //设置不可以双指缩放移动放大等操作，跟普通的image一模一样
+        //设置不可以双指缩放移动放大等操作，跟普通的image一模一样,默认情况下就是disenable()状态
         mImg1.disenable();
         mImg1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,6 +44,8 @@ public class ImgClick extends Activity implements RadioGroup.OnCheckedChangeList
             }
         });
 
+        // 需要启动缩放需要手动开启
+        mImg2.enable();
         mImg2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

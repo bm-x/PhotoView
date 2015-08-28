@@ -86,6 +86,7 @@ public class PhotoBrowse extends Activity {
             }
         });
 
+        mPhotoView.enable();
         mPhotoView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
