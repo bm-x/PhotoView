@@ -5,8 +5,8 @@
 如使用过程中有任何bug，意见或建议，可邮件给我 bmme@vip.qq.com
 
 #使用
-xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，可以指定固定dp的宽高或者match_parent。 wrap_content属性的支持会在稍后加上
 
+xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，可以指定固定dp的宽高或者match_parent。 wrap_content属性的支持会在稍后加上
 ```xml
  <com.bm.library.PhotoView
      android:id="@+id/img"
@@ -16,6 +16,7 @@ xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，�
      android:src="@drawable/bitmap1" />
 ```
 
+java代码
 ```java
 PhotoView photoView = (PhotoView) findViewById(R.id.img);
 // 启用图片缩放功能
