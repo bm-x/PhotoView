@@ -17,7 +17,7 @@ xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，�
 ```
 
 ```java
-PhotoView photoView = (PhotoView)findViewById(R.id.img);
+PhotoView photoView = (PhotoView) findViewById(R.id.img);
 // 启用图片缩放功能
 photoView.enable();
 // 禁用图片缩放功能 (默认为禁用，会跟普通的ImageView一样，缩放功能需手动调用enable()启用)
@@ -30,7 +30,7 @@ photoView.animaFrom(info);
 photoView.animaTo(info,new Runnable() {
        @Override
        public void run() {
-           mParent.setVisibility(View.GONE);
+           //动画完成监听
        }
    });
 ```
