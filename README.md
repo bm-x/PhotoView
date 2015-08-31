@@ -48,8 +48,9 @@ photoView.animaTo(info,new Runnable() {
 
 # 版本
 
-v2.0.1
+v2.0.2
    修复某些情况下会闪动
+   增加对ScaleType.FIT_START,FIT_END对animaFrom的支持
 
 v2.0.0  
    * 添加animaTo,animaFrom方法，支持图片点击放大缩小浏览功能
