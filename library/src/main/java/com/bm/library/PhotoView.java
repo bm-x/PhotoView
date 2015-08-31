@@ -17,7 +17,7 @@ import android.widget.Scroller;
 
 /**
  * Created by liuheng on 2015/6/21.
- *
+ * <p/>
  * 如有任何意见和建议可邮件  bmme@vip.qq.com
  */
 public class PhotoView extends ImageView {
@@ -129,7 +129,7 @@ public class PhotoView extends ImageView {
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
 
-        if (drawable==null) return;
+        if (drawable == null) return;
 
         if (drawable.getIntrinsicHeight() <= 0 || drawable.getIntrinsicWidth() <= 0)
             return;
@@ -663,6 +663,8 @@ public class PhotoView extends ImageView {
         Scroller mScaleScroller;
         Scroller mClipScroll;
 
+        ClipCalculate C;
+
         int mLastFlingX;
         int mLastFlingY;
 
@@ -690,8 +692,9 @@ public class PhotoView extends ImageView {
             mScaleScroller.startScroll((int) (form * 10000), 0, (int) ((to - form) * 10000), 0, ANIMA_DURING);
         }
 
-        void withClip(float fromX, float fromY, float deltaX, float deltaY, int d) {
+        void withClip(float fromX, float fromY, float deltaX, float deltaY, int d, ClipCalculate c) {
             mClipScroll.startScroll((int) (fromX * 10000), (int) (fromY * 10000), (int) (deltaX * 10000), (int) (deltaY * 10000), d);
+            C = c;
         }
 
         void withFling(float velocityX, float velocityY) {
@@ -773,7 +776,7 @@ public class PhotoView extends ImageView {
             if (mClipScroll.computeScrollOffset() || mClip != null) {
                 float sx = mClipScroll.getCurrX() / 10000f;
                 float sy = mClipScroll.getCurrY() / 10000f;
-                mTmpMatrix.setScale(sx, sy, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
+                mTmpMatrix.setScale(sx, sy, (mImgRect.left + mImgRect.right) / 2, C.calculateTop());
                 mTmpMatrix.mapRect(mClipRect, mImgRect);
 
                 if (sx == 1) {
@@ -814,7 +817,7 @@ public class PhotoView extends ImageView {
         getLocationInWindow(p);
         rect.set(p[0] + mImgRect.left, p[1] + mImgRect.top, p[0] + mImgRect.right, p[1] + mImgRect.bottom);
         local.set(p[0], p[1], p[0] + mImgRect.width(), p[1] + mImgRect.height());
-        return new Info(rect, local, mImgRect, mWidgetRect, mScale);
+        return new Info(rect, local, mImgRect, mWidgetRect, mScale, mScaleType);
     }
 
     private void reset() {
@@ -823,6 +826,28 @@ public class PhotoView extends ImageView {
         mScale = 1;
         mTranslateX = 0;
         mTranslateY = 0;
+    }
+
+    public interface ClipCalculate {
+        float calculateTop();
+    }
+
+    public class START implements ClipCalculate {
+        public float calculateTop() {
+            return mImgRect.top;
+        }
+    }
+
+    public class END implements ClipCalculate {
+        public float calculateTop() {
+            return mImgRect.bottom;
+        }
+    }
+
+    public class OTHER implements ClipCalculate {
+        public float calculateTop() {
+            return (mImgRect.top + mImgRect.bottom) / 2;
+        }
     }
 
     public void animaFrom(Info info) {
@@ -861,9 +886,12 @@ public class PhotoView extends ImageView {
                 float clipY = info.mWidgetRect.height() / info.mImgRect.height();
                 clipX = clipX > 1 ? 1 : clipX;
                 clipY = clipY > 1 ? 1 : clipY;
-                mTranslate.withClip(clipX, clipY, 1 - clipX, 1 - clipY, ANIMA_DURING / 3);
 
-                mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
+                ClipCalculate c = info.mScaleType == ScaleType.FIT_START ? new START() : info.mScaleType == ScaleType.FIT_END ? new END() : new OTHER();
+
+                mTranslate.withClip(clipX, clipY, 1 - clipX, 1 - clipY, ANIMA_DURING / 3, c);
+
+                mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, c.calculateTop());
                 mTmpMatrix.mapRect(mTranslate.mClipRect, mImgRect);
                 mClip = mTranslate.mClipRect;
             }
@@ -913,15 +941,14 @@ public class PhotoView extends ImageView {
 
                 final float cx = clipX;
                 final float cy = clipY;
+                final ClipCalculate c = info.mScaleType == ScaleType.FIT_START ? new START() : info.mScaleType == ScaleType.FIT_END ? new END() : new OTHER();
 
                 postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        mTranslate.withClip(1, 1, -1 + cx, -1 + cy, ANIMA_DURING / 2);
+                        mTranslate.withClip(1, 1, -1 + cx, -1 + cy, ANIMA_DURING / 2, c);
                     }
                 }, ANIMA_DURING / 2);
-
-                mTmpMatrix.setScale(clipX, clipY, (mImgRect.left + mImgRect.right) / 2, (mImgRect.top + mImgRect.bottom) / 2);
             }
 
             mCompleteCallBack = completeCallBack;
