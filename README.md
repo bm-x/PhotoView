@@ -8,8 +8,15 @@
 ![PhotoView](./demo2.gif) ![PhotoView](./demo1.gif)
 
 #使用
+1.添加Gradle依赖 (推荐)
+```gradle
+dependencies {
+    compile 'com.bm.photoview:library:2.0.1'
+}
+```
+(或者也可以将项目下载下来，将Info.java和PhotoView.java两个文件拷贝到你的项目中，不推荐)
 
-xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，可以指定固定dp的宽高或者match_parent。 wrap_content属性的支持会在稍后加上
+2.xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，可以指定固定dp的宽高或者match_parent。 wrap_content属性的支持会在稍后加上
 ```xml
  <com.bm.library.PhotoView
      android:id="@+id/img"
@@ -19,7 +26,7 @@ xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，�
      android:src="@drawable/bitmap1" />
 ```
 
-java代码
+3.java代码
 ```java
 PhotoView photoView = (PhotoView) findViewById(R.id.img);
 // 启用图片缩放功能
@@ -38,7 +45,6 @@ photoView.animaTo(info,new Runnable() {
        }
    });
 ```
-
 
 # 版本
 
