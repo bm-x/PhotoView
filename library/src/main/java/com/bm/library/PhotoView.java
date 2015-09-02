@@ -131,7 +131,7 @@ public class PhotoView extends ImageView {
 
         if (drawable == null) return;
 
-        if (drawable.getIntrinsicHeight() <= 0 || drawable.getIntrinsicWidth() <= 0)
+        if (!hasSize(drawable))
             return;
 
         if (!hasDrawable) {
@@ -139,6 +139,29 @@ public class PhotoView extends ImageView {
         }
 
         initBase();
+    }
+
+    private boolean hasSize(Drawable d) {
+        if ((d.getIntrinsicHeight() <= 0 || d.getIntrinsicWidth() <= 0)
+                && d.getMinimumWidth() <= 0 || d.getMinimumHeight() <= 0
+                && d.getBounds().width() <= 0 || d.getBounds().height() <= 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private int getDrawableWidth(Drawable d) {
+        int width = d.getIntrinsicWidth();
+        if (width<=0) width = d.getMinimumWidth();
+        if (width<=0) width = d.getBounds().width();
+        return width;
+    }
+
+    private int getDrawableHeight(Drawable d){
+        int height = d.getIntrinsicHeight();
+        if (height<=0) height = d.getMinimumHeight();
+        if (height<=0) height = d.getBounds().height();
+        return height;
     }
 
     private void initBase() {
@@ -152,8 +175,8 @@ public class PhotoView extends ImageView {
 
         int w = getWidth();
         int h = getHeight();
-        int imgw = img.getIntrinsicWidth();
-        int imgh = img.getIntrinsicHeight();
+        int imgw = getDrawableWidth(img);
+        int imgh = getDrawableHeight(img);
 
         mBaseRect.set(0, 0, imgw, imgh);
 
