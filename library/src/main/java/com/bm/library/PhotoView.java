@@ -143,8 +143,8 @@ public class PhotoView extends ImageView {
 
     private boolean hasSize(Drawable d) {
         if ((d.getIntrinsicHeight() <= 0 || d.getIntrinsicWidth() <= 0)
-                && d.getMinimumWidth() <= 0 || d.getMinimumHeight() <= 0
-                && d.getBounds().width() <= 0 || d.getBounds().height() <= 0) {
+                && (d.getMinimumWidth() <= 0 || d.getMinimumHeight() <= 0)
+                && (d.getBounds().width() <= 0 || d.getBounds().height() <= 0)) {
             return false;
         }
         return true;
@@ -152,15 +152,15 @@ public class PhotoView extends ImageView {
 
     private int getDrawableWidth(Drawable d) {
         int width = d.getIntrinsicWidth();
-        if (width<=0) width = d.getMinimumWidth();
-        if (width<=0) width = d.getBounds().width();
+        if (width <= 0) width = d.getMinimumWidth();
+        if (width <= 0) width = d.getBounds().width();
         return width;
     }
 
-    private int getDrawableHeight(Drawable d){
+    private int getDrawableHeight(Drawable d) {
         int height = d.getIntrinsicHeight();
-        if (height<=0) height = d.getMinimumHeight();
-        if (height<=0) height = d.getBounds().height();
+        if (height <= 0) height = d.getMinimumHeight();
+        if (height <= 0) height = d.getBounds().height();
         return height;
     }
 
