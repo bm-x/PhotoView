@@ -129,7 +129,10 @@ public class PhotoView extends ImageView {
     public void setImageDrawable(Drawable drawable) {
         super.setImageDrawable(drawable);
 
-        if (drawable == null) return;
+        if (drawable == null) {
+            hasDrawable = false;
+            return;
+        }
 
         if (!hasSize(drawable))
             return;
