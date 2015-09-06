@@ -17,7 +17,7 @@ import android.widget.Scroller;
 
 /**
  * Created by liuheng on 2015/6/21.
- * <p/>
+ * <p /></p>
  * 如有任何意见和建议可邮件  bmme@vip.qq.com
  */
 public class PhotoView extends ImageView {
@@ -27,6 +27,7 @@ public class PhotoView extends ImageView {
     private int MAX_OVER_SCROLL = 0;
     private int MAX_FLING_OVER_SCROLL = 0;
     private int MAX_OVER_RESISTANCE = 0;
+    private int MAX_ANIM_FROM_WAITE = 500;
 
     private Matrix mBaseMatrix = new Matrix();
     private Matrix mAnimaMatrix = new Matrix();
@@ -66,7 +67,7 @@ public class PhotoView extends ImageView {
 
     private RectF mClip;
     private Info mInfo;
-    private Info mOldInfo;
+    private long mInfoTime;
     private Runnable mCompleteCallBack;
 
     private float[] mValues = new float[16];
@@ -118,6 +119,12 @@ public class PhotoView extends ImageView {
 
     public void disenable() {
         isEnable = false;
+    }
+
+    /**
+     */
+    public void setMaxAnimFromWaiteTime(int wait) {
+        MAX_ANIM_FROM_WAITE = wait;
     }
 
     @Override
@@ -236,11 +243,11 @@ public class PhotoView extends ImageView {
 
         isInit = true;
 
-        if (mInfo != null) {
+        if (mInfo != null && System.currentTimeMillis() - mInfoTime < MAX_ANIM_FROM_WAITE) {
             animaFrom(mInfo);
-            mOldInfo = mInfo;
-            mInfo = null;
         }
+        
+        mInfo = null;
     }
 
     private void initCenter() {
@@ -876,6 +883,14 @@ public class PhotoView extends ImageView {
         }
     }
 
+    /**
+     * 在PhotoView内部还没有图片的时候同样可以调用该方法
+     * <p>
+     * 此时并不会播放动画，当给PhotoView设置动画后会自动播放动画。
+     * <p>
+     * 若等待时间过长也没有给控件设置图片，则会忽略该动画，若要再次播放动画则需要重新调用该方法
+     * (等待的时间默认500毫秒，可以通过setMaxAnimFromWaiteTime(int)设置最大等待时间)
+     */
     public void animaFrom(Info info) {
         if (isInit) {
             reset();
@@ -925,6 +940,7 @@ public class PhotoView extends ImageView {
             mTranslate.start();
         } else {
             mInfo = info;
+            mInfoTime = System.currentTimeMillis();
         }
     }
 
