@@ -17,7 +17,7 @@ import android.widget.Scroller;
 
 /**
  * Created by liuheng on 2015/6/21.
- * <p /></p>
+ * <p></p>
  * 如有任何意见和建议可邮件  bmme@vip.qq.com
  */
 public class PhotoView extends ImageView {
