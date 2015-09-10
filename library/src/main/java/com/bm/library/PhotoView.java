@@ -129,7 +129,11 @@ public class PhotoView extends ImageView {
 
     @Override
     public void setImageResource(int resId) {
-        setImageDrawable(getResources().getDrawable(resId));
+        Drawable drawable = null;
+        try {
+            drawable = getResources().getDrawable(resId);
+        } catch (Exception e) {}
+        setImageDrawable(drawable);
     }
 
     @Override
