@@ -133,6 +133,7 @@ public class PhotoView extends ImageView {
         try {
             drawable = getResources().getDrawable(resId);
         } catch (Exception e) {}
+
         setImageDrawable(drawable);
     }
 
