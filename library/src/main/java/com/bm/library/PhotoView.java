@@ -973,9 +973,9 @@ public class PhotoView extends ImageView {
 
     /**
      * 在PhotoView内部还没有图片的时候同样可以调用该方法
-     * <p/>
+     * <p></p>
      * 此时并不会播放动画，当给PhotoView设置动画后会自动播放动画。
-     * <p/>
+     * <p></p>
      * 若等待时间过长也没有给控件设置图片，则会忽略该动画，若要再次播放动画则需要重新调用该方法
      * (等待的时间默认500毫秒，可以通过setMaxAnimFromWaiteTime(int)设置最大等待时间)
      */
