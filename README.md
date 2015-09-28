@@ -11,12 +11,12 @@
 1.添加Gradle依赖 (推荐)
 ```gradle
 dependencies {
-    compile 'com.bm.photoview:library:2.0.5'
+    compile 'com.bm.photoview:library:2.0.6'
 }
 ```
 (或者也可以将项目下载下来，将Info.java和PhotoView.java两个文件拷贝到你的项目中，不推荐)
 
-2.xml添加，注意，在定义PhotoView宽高时，不能使用wrap_content，可以指定固定dp的宽高或者match_parent。 wrap_content属性的支持会在稍后加上
+2.xml添加
 ```xml
  <com.bm.library.PhotoView
      android:id="@+id/img"
@@ -48,9 +48,10 @@ photoView.animaTo(info,new Runnable() {
 
 # 版本
 
-v2.0.5
-   修复某些情况下会闪动
-   增加对ScaleType.FIT_START,FIT_END对animaFrom的支持
+v2.0.6
+   * 宽高属性可以设置为wrap_content，添加对adjustViewBounds属性的支持
+   * 修复某些情况下会闪动
+   * 增加对ScaleType.FIT_START,FIT_END对animaFrom的支持
 
 v2.0.0  
    * 添加animaTo,animaFrom方法，支持图片点击放大缩小浏览功能
