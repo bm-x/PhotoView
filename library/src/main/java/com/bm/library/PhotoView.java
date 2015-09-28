@@ -7,10 +7,14 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.OverScroller;
 import android.widget.Scroller;
@@ -46,6 +50,7 @@ public class PhotoView extends ImageView {
     private boolean hasOverTranslate;
     private boolean isEnable = false;
     private boolean isInit;
+    private boolean mAdjustViewBounds;
 
     private boolean imgLargeWidth;
     private boolean imgLargeHeight;
@@ -132,7 +137,8 @@ public class PhotoView extends ImageView {
         Drawable drawable = null;
         try {
             drawable = getResources().getDrawable(resId);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         setImageDrawable(drawable);
     }
@@ -251,7 +257,7 @@ public class PhotoView extends ImageView {
         if (mInfo != null && System.currentTimeMillis() - mInfoTime < MAX_ANIM_FROM_WAITE) {
             animaFrom(mInfo);
         }
-        
+
         mInfo = null;
     }
 
@@ -348,6 +354,86 @@ public class PhotoView extends ImageView {
 
         imgLargeWidth = mImgRect.width() > mWidgetRect.width();
         imgLargeHeight = mImgRect.height() > mWidgetRect.height();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (!hasDrawable) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            return;
+        }
+
+        Drawable d = getDrawable();
+        int drawableW = getDrawableWidth(d);
+        int drawableH = getDrawableHeight(d);
+
+        int pWidth = MeasureSpec.getSize(widthMeasureSpec);
+        int pHeight = MeasureSpec.getSize(heightMeasureSpec);
+
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+
+        int width = 0;
+        int height = 0;
+
+        ViewGroup.LayoutParams p = getLayoutParams();
+
+        if (p == null) {
+            p = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        if (p.width == ViewGroup.LayoutParams.MATCH_PARENT) {
+            if (widthMode == MeasureSpec.UNSPECIFIED) {
+                width = drawableW;
+            } else {
+                width = pWidth;
+            }
+        } else {
+            if (widthMode == MeasureSpec.EXACTLY) {
+                width = pWidth;
+            } else if (widthMode == MeasureSpec.AT_MOST) {
+                width = drawableW > pWidth ? pWidth : drawableW;
+            } else {
+                width = drawableW;
+            }
+        }
+
+        if (p.height == ViewGroup.LayoutParams.MATCH_PARENT) {
+            if (heightMode == MeasureSpec.UNSPECIFIED) {
+                height = drawableH;
+            } else {
+                height = pHeight;
+            }
+        } else {
+            if (heightMode == MeasureSpec.EXACTLY) {
+                height = pHeight;
+            } else if (heightMode == MeasureSpec.AT_MOST) {
+                height = drawableH > pHeight ? pHeight : drawableH;
+            } else {
+                height = drawableH;
+            }
+        }
+
+        if (mAdjustViewBounds
+                && p.width == ViewGroup.LayoutParams.WRAP_CONTENT
+                && p.height == ViewGroup.LayoutParams.WRAP_CONTENT
+                && drawableW / drawableH != width / height) {
+
+            float hScale = (float) height / drawableH;
+            float wScale = (float) width / drawableW;
+
+            float scale = hScale < wScale ? hScale : wScale;
+            width = (int) (drawableW * scale);
+            height = (int) (drawableH * scale);
+        }
+
+        setMeasuredDimension(width, height);
+    }
+
+    @Override
+    public void setAdjustViewBounds(boolean adjustViewBounds) {
+        super.setAdjustViewBounds(adjustViewBounds);
+        mAdjustViewBounds = adjustViewBounds;
     }
 
     @Override
@@ -890,9 +976,9 @@ public class PhotoView extends ImageView {
 
     /**
      * 在PhotoView内部还没有图片的时候同样可以调用该方法
-     * <p>
+     * <p/>
      * 此时并不会播放动画，当给PhotoView设置动画后会自动播放动画。
-     * <p>
+     * <p/>
      * 若等待时间过长也没有给控件设置图片，则会忽略该动画，若要再次播放动画则需要重新调用该方法
      * (等待的时间默认500毫秒，可以通过setMaxAnimFromWaiteTime(int)设置最大等待时间)
      */

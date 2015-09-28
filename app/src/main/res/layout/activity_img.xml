@@ -12,7 +12,7 @@
         android:id="@+id/img1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/holo_orange_light"
+        android:background="#ffffbb33"
         android:scaleType="centerInside"
         android:src="@mipmap/aaa" />
 
