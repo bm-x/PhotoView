@@ -49,6 +49,7 @@ photoView.animaTo(info,new Runnable() {
 # 版本
 
 v2.0.6
+
    宽高属性可以设置为wrap_content，添加对adjustViewBounds属性的支持
    修复某些情况下会闪动
    增加对ScaleType.FIT_START,FIT_END对animaFrom的支持
