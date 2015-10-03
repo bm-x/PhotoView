@@ -11,7 +11,7 @@
 1.添加Gradle依赖 (推荐)
 ```gradle
 dependencies {
-    compile 'com.bm.photoview:library:2.0.6'
+    compile 'com.bm.photoview:library:2.0.7'
 }
 ```
 (或者也可以将项目下载下来，将Info.java和PhotoView.java两个文件拷贝到你的项目中，不推荐)
@@ -48,7 +48,7 @@ photoView.animaTo(info,new Runnable() {
 
 # 版本
 
-v2.0.6
+v2.0.7
    * 宽高属性可以设置为wrap_content，添加对adjustViewBounds属性的支持
    * 修复某些情况下会闪动
    * 增加对ScaleType.FIT_START,FIT_END对animaFrom的支持

@@ -51,6 +51,8 @@ public class PhotoView extends ImageView {
     private boolean isEnable = false;
     private boolean isInit;
     private boolean mAdjustViewBounds;
+    // 当前是否处于放大状态
+    private boolean isZoonUp;
 
     private boolean imgLargeWidth;
     private boolean imgLargeHeight;
@@ -192,6 +194,8 @@ public class PhotoView extends ImageView {
         mBaseMatrix.reset();
         mAnimaMatrix.reset();
 
+        isZoonUp = false;
+
         Drawable img = getDrawable();
 
         int w = getWidth();
@@ -299,6 +303,8 @@ public class PhotoView extends ImageView {
         if (mImgRect.width() > mWidgetRect.width() || mImgRect.height() > mWidgetRect.height()) {
             float scaleX = mWidgetRect.width() / mImgRect.width();
             float scaleY = mWidgetRect.height() / mImgRect.height();
+
+            Log.i("bm", "initCenterInside: " + scaleX + "   " + scaleY);
 
             mScale = scaleX < scaleY ? scaleX : scaleY;
 
@@ -724,7 +730,12 @@ public class PhotoView extends ImageView {
             float from = 1;
             float to = 1;
 
-            if (mScale == 1) {
+            if (isZoonUp) {
+                from = mScale;
+                to = 1;
+
+                mTranslate.withTranslate(mTranslateX, mTranslateY, -mTranslateX, -mTranslateY);
+            } else {
                 from = 1;
                 to = MAX_SCALE;
 
@@ -732,12 +743,9 @@ public class PhotoView extends ImageView {
                     mDoubleTab.set(mScreenCenter.x, mScreenCenter.y);
                 else
                     mDoubleTab.set(e.getX(), mScreenCenter.y);
-            } else {
-                from = mScale;
-                to = 1;
-
-                mTranslate.withTranslate(mTranslateX, mTranslateY, -mTranslateX, -mTranslateY);
             }
+
+            isZoonUp = !isZoonUp;
 
             mTranslate.withScale(from, to);
             mTranslate.start();

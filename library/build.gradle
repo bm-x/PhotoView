@@ -2,11 +2,11 @@ apply plugin: 'com.android.library'
 //apply plugin: 'com.github.dcendents.android-maven'
 //apply plugin: 'com.jfrog.bintray'
 
-version = "2.0.6"
+version = "2.0.7"
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.0"
+    buildToolsVersion "23.0.1"
     resourcePrefix "photoview"
 
     defaultConfig {
@@ -26,7 +26,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
-//
+
 //def siteUrl = 'https://github.com/bm-x/PhotoView'
 //def gitUrl = 'https://github.com/bm-x/PhotoView.git'
 //group = "com.bm.photoview"
