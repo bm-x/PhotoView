@@ -45,11 +45,13 @@ photoView.animaTo(info,new Runnable() {
            //动画完成监听
        }
    });
+// 获取动画持续时间
+int d = PhotoView.getDefaultAnimaDuring();
 ```
 
 # 版本
 
-v1.3.0
+v1.3.4
    * 增加图片的旋转功能
    * 版本号命名改变
 
