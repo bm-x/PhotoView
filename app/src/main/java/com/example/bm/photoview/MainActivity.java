@@ -2,7 +2,10 @@ package com.example.bm.photoview;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -31,4 +34,5 @@ public class MainActivity extends Activity {
     public void photobrowse(View view) {
         startActivity(new Intent(this, PhotoBrowse.class));
     }
+
 }

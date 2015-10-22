@@ -3,6 +3,8 @@ package com.example.bm.photoview;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
 
@@ -22,6 +24,7 @@ public class ImgClick extends Activity implements RadioGroup.OnCheckedChangeList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_img_click);
 
         ((RadioGroup) findViewById(R.id.group)).setOnCheckedChangeListener(this);

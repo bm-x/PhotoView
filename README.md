@@ -8,12 +8,13 @@
 ![PhotoView](./demo2.gif) ![PhotoView](./demo1.gif)
 
 #使用
-1.添加Gradle依赖 (推荐)
+1.Gradle添加依赖 (推荐)
 ```gradle
 dependencies {
-    compile 'com.bm.photoview:library:2.0.7'
+    compile 'com.bm.photoview:library:1.3.4'
 }
 ```
+
 (或者也可以将项目下载下来，将Info.java和PhotoView.java两个文件拷贝到你的项目中，不推荐)
 
 2.xml添加
@@ -47,6 +48,10 @@ photoView.animaTo(info,new Runnable() {
 ```
 
 # 版本
+
+v1.3.0
+   * 增加图片的旋转功能
+   * 版本号命名改变
 
 v2.0.7
    * 宽高属性可以设置为wrap_content，添加对adjustViewBounds属性的支持
