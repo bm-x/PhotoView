@@ -289,8 +289,8 @@ public class PhotoView extends ImageView {
 
         Drawable img = getDrawable();
 
-        int imgw = img.getIntrinsicWidth();
-        int imgh = img.getIntrinsicHeight();
+        int imgw = getDrawableWidth(img);
+        int imgh = getDrawableHeight(img);
 
         if (imgw > mWidgetRect.width() || imgh > mWidgetRect.height()) {
             float scaleX = imgw / mImgRect.width();
@@ -301,6 +301,8 @@ public class PhotoView extends ImageView {
             mAnimaMatrix.postScale(mScale, mScale, mScreenCenter.x, mScreenCenter.y);
 
             executeTranslate();
+
+            resetBase();
         }
     }
 
@@ -314,6 +316,7 @@ public class PhotoView extends ImageView {
             mAnimaMatrix.postScale(mScale, mScale, mScreenCenter.x, mScreenCenter.y);
 
             executeTranslate();
+            resetBase();
         }
     }
 
@@ -327,6 +330,7 @@ public class PhotoView extends ImageView {
             mAnimaMatrix.postScale(mScale, mScale, mScreenCenter.x, mScreenCenter.y);
 
             executeTranslate();
+            resetBase();
         }
     }
 
@@ -337,6 +341,7 @@ public class PhotoView extends ImageView {
             mAnimaMatrix.postScale(mScale, mScale, mScreenCenter.x, mScreenCenter.y);
 
             executeTranslate();
+            resetBase();
         }
     }
 
@@ -347,6 +352,7 @@ public class PhotoView extends ImageView {
         mTranslateY += ty;
         mAnimaMatrix.postTranslate(0, ty);
         executeTranslate();
+        resetBase();
     }
 
     private void initFitEnd() {
@@ -356,6 +362,7 @@ public class PhotoView extends ImageView {
         mTranslateY += ty;
         mAnimaMatrix.postTranslate(0, ty);
         executeTranslate();
+        resetBase();
     }
 
     private void initFitXY() {
@@ -365,6 +372,22 @@ public class PhotoView extends ImageView {
         mAnimaMatrix.postScale(scaleX, scaleY, mScreenCenter.x, mScreenCenter.y);
 
         executeTranslate();
+        resetBase();
+    }
+
+    private void resetBase() {
+        Drawable img = getDrawable();
+        int imgw = getDrawableWidth(img);
+        int imgh = getDrawableHeight(img);
+        mBaseRect.set(0, 0, imgw, imgh);
+        mBaseMatrix.set(mSynthesisMatrix);
+        mBaseMatrix.mapRect(mBaseRect);
+        mHalfBaseRectWidth = mBaseRect.width() / 2;
+        mHalfBaseRectHeight = mBaseRect.height() / 2;
+        mScale = 1;
+        mTranslateX = 0;
+        mTranslateY = 0;
+        mAnimaMatrix.reset();
     }
 
     private void executeTranslate() {

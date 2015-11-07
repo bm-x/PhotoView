@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 //apply plugin: 'com.github.dcendents.android-maven'
 //apply plugin: 'com.jfrog.bintray'
 
-version = "1.3.4"
+version = "1.3.5"
 
 android {
     compileSdkVersion 23
@@ -39,7 +39,7 @@ dependencies {
 //                // Add your description here
 //                name 'PhotoView'
 //                url siteUrl
-//                 Set your license
+//               //  Set your license
 //                licenses {
 //                    license {
 //                        name 'The Apache Software License, Version 2.0'
@@ -95,5 +95,5 @@ dependencies {
 //        publish = true
 //    }
 //}
-
+//
 //gradlew bintrayUpload
