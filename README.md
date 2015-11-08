@@ -11,7 +11,7 @@
 1.Gradle添加依赖 (推荐)
 ```gradle
 dependencies {
-    compile 'com.bm.photoview:library:1.3.5'
+    compile 'com.bm.photoview:library:1.3.6'
 }
 ```
 
@@ -51,7 +51,7 @@ int d = PhotoView.getDefaultAnimaDuring();
 
 # 版本
 
-v1.3.5
+v1.3.6
    * 增加图片的旋转功能
    * 版本号命名改变
 
