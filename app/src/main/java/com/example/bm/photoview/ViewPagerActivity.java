@@ -42,6 +42,19 @@ public class ViewPagerActivity extends Activity {
                 PhotoView view = new PhotoView(ViewPagerActivity.this);
                 view.enable();
                 view.setImageResource(imgsId[position]);
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        System.out.println("单点了");
+                    }
+                });
+                view.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        System.out.println("长按了");
+                        return true;
+                    }
+                });
                 container.addView(view);
                 return view;
             }

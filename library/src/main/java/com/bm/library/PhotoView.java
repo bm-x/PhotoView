@@ -43,6 +43,7 @@ public class PhotoView extends ImageView {
     private GestureDetector mDetector;
     private ScaleGestureDetector mScaleDetector;
     private OnClickListener mClickListener;
+    private OnLongClickListener mLongClickListener;
 
     private ScaleType mScaleType;
 
@@ -123,6 +124,12 @@ public class PhotoView extends ImageView {
     public void setOnClickListener(OnClickListener l) {
         super.setOnClickListener(l);
         mClickListener = l;
+    }
+
+    @Override
+    public void setOnLongClickListener(OnLongClickListener l) {
+        super.setOnLongClickListener(l);
+        mLongClickListener = l;
     }
 
     @Override
@@ -694,6 +701,7 @@ public class PhotoView extends ImageView {
         }
     };
 
+
     private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -703,6 +711,12 @@ public class PhotoView extends ImageView {
             canRotate = false;
             removeCallbacks(mClickRunnable);
             return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            super.onLongPress(e);
+            mLongClickListener.onLongClick(PhotoView.this);
         }
 
         @Override
