@@ -716,7 +716,9 @@ public class PhotoView extends ImageView {
         @Override
         public void onLongPress(MotionEvent e) {
             super.onLongPress(e);
-            mLongClickListener.onLongClick(PhotoView.this);
+            if (mLongClickListener != null) {
+                mLongClickListener.onLongClick(PhotoView.this);
+            }
         }
 
         @Override

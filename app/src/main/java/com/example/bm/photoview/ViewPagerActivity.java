@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bm.library.PhotoView;
 
@@ -45,13 +46,13 @@ public class ViewPagerActivity extends Activity {
                 view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        System.out.println("单点了");
+                        Toast.makeText(getApplicationContext(),"单点",Toast.LENGTH_SHORT).show();
                     }
                 });
                 view.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        System.out.println("长按了");
+                        Toast.makeText(getApplicationContext(),"长按",Toast.LENGTH_SHORT).show();
                         return true;
                     }
                 });
