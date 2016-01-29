@@ -7,7 +7,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -26,9 +25,9 @@ import android.widget.Scroller;
  */
 public class PhotoView extends ImageView {
 
-    private final static int MIN_ROTATE = 35;
-    private final static int ANIMA_DURING = 320;
-    private final static float MAX_SCALE = 2.5f;
+    private int MIN_ROTATE = 35;
+    private int ANIMA_DURING = 320;
+    private float MAX_SCALE = 2.5f;
     private int MAX_OVER_SCROLL = 0;
     private int MAX_FLING_OVER_SCROLL = 0;
     private int MAX_OVER_RESISTANCE = 0;
@@ -43,6 +42,7 @@ public class PhotoView extends ImageView {
     private GestureDetector mDetector;
     private ScaleGestureDetector mScaleDetector;
     private OnClickListener mClickListener;
+    private OnLongClickListener mLongClickListener;
 
     private ScaleType mScaleType;
 
@@ -88,11 +88,6 @@ public class PhotoView extends ImageView {
 
     private float[] mValues = new float[16];
 
-    public PhotoView(Context context) {
-        super(context);
-        init();
-    }
-
     public PhotoView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
@@ -100,6 +95,11 @@ public class PhotoView extends ImageView {
 
     public PhotoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init();
+    }
+
+    public PhotoView(Context context) {
+        super(context);
         init();
     }
 
@@ -115,14 +115,17 @@ public class PhotoView extends ImageView {
         MAX_OVER_RESISTANCE = (int) (density * 140);
     }
 
-    public static int getDefaultAnimaDuring() {
-        return ANIMA_DURING;
-    }
 
     @Override
     public void setOnClickListener(OnClickListener l) {
         super.setOnClickListener(l);
         mClickListener = l;
+    }
+
+    @Override
+    public void setOnLongClickListener(OnLongClickListener l) {
+        super.setOnLongClickListener(l);
+        mLongClickListener = l;
     }
 
     @Override
@@ -142,11 +145,6 @@ public class PhotoView extends ImageView {
         isEnable = false;
     }
 
-    /**
-     */
-    public void setMaxAnimFromWaiteTime(int wait) {
-        MAX_ANIM_FROM_WAITE = wait;
-    }
 
     @Override
     public void setImageResource(int resId) {
@@ -694,6 +692,7 @@ public class PhotoView extends ImageView {
         }
     };
 
+
     private GestureDetector.OnGestureListener mGestureListener = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
@@ -703,6 +702,14 @@ public class PhotoView extends ImageView {
             canRotate = false;
             removeCallbacks(mClickRunnable);
             return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            super.onLongPress(e);
+            if (mLongClickListener != null) {
+                mLongClickListener.onLongClick(PhotoView.this);
+            }
         }
 
         @Override
@@ -1232,5 +1239,61 @@ public class PhotoView extends ImageView {
             mCompleteCallBack = completeCallBack;
             mTranslate.start();
         }
+    }
+
+    public int getMinRotate() {
+        return MIN_ROTATE;
+    }
+
+    public void setMinRotate(int minRotate) {
+        MIN_ROTATE = minRotate;
+    }
+
+    public int getAnimaDuring() {
+        return ANIMA_DURING;
+    }
+
+    public void setAnimaDuring(int animaDuring) {
+        ANIMA_DURING = animaDuring;
+    }
+
+    public float getMaxScale() {
+        return MAX_SCALE;
+    }
+
+    public void setMaxScale(float maxScale) {
+        MAX_SCALE = maxScale;
+    }
+
+    public int getMaxOverScroll() {
+        return MAX_OVER_SCROLL;
+    }
+
+    public void setMaxOverScroll(int maxOverScroll) {
+        this.MAX_OVER_SCROLL = maxOverScroll;
+    }
+
+    public int getMaxFlingOverScroll() {
+        return MAX_FLING_OVER_SCROLL;
+    }
+
+    public void setMaxFlingOverScroll(int maxFlingOverScroll) {
+        this.MAX_FLING_OVER_SCROLL = maxFlingOverScroll;
+    }
+
+    public int getMaxOverResistance() {
+        return MAX_OVER_RESISTANCE;
+    }
+
+    public void setMaxOverResistance(int maxOverResistance) {
+        this.MAX_OVER_RESISTANCE = maxOverResistance;
+    }
+
+    public int getMaxAnimFromWaite() {
+        return MAX_ANIM_FROM_WAITE;
+    }
+
+    public void setMaxAnimFromWaite(int maxAnimFromWaite) {
+        this.MAX_ANIM_FROM_WAITE = maxAnimFromWaite;
     }
 }

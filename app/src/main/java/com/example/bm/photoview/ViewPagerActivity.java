@@ -6,7 +6,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bm.library.PhotoView;
 
@@ -42,6 +42,19 @@ public class ViewPagerActivity extends Activity {
                 PhotoView view = new PhotoView(ViewPagerActivity.this);
                 view.enable();
                 view.setImageResource(imgsId[position]);
+                view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getApplicationContext(), "单点", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                view.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        Toast.makeText(getApplicationContext(), "长按", Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                });
                 container.addView(view);
                 return view;
             }
