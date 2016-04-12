@@ -293,8 +293,8 @@ public class PhotoView extends ImageView {
         int imgh = getDrawableHeight(img);
 
         if (imgw > mWidgetRect.width() || imgh > mWidgetRect.height()) {
-            float scaleX = imgw / mImgRect.width();
-            float scaleY = imgh / mImgRect.height();
+            float scaleX = imgw / mWidgetRect.width();
+            float scaleY = imgh / mWidgetRect.height();
 
             mScale = scaleX > scaleY ? scaleX : scaleY;
 
