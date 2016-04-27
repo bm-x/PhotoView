@@ -11,7 +11,7 @@
 1.Gradle添加依赖 (推荐)
 ```gradle
 dependencies {
-    compile 'com.bm.photoview:library:1.3.6'
+    compile 'com.bm.photoview:library:1.4.0'
 }
 ```
 
@@ -36,6 +36,8 @@ photoView.enable();
 photoView.disenable();
 // 获取图片信息
 Info info = photoView.getInfo();
+// 从普通的ImageView中获取Info
+Info info = PhotoView.getImageViewInfo(ImageView);
 // 从一张图片信息变化到现在的图片，用于图片点击后放大浏览，具体使用可以参照demo的使用
 photoView.animaFrom(info);
 // 从现在的图片变化到所给定的图片信息，用于图片放大后点击缩小到原来的位置，具体使用可以参照demo的使用
@@ -45,12 +47,25 @@ photoView.animaTo(info,new Runnable() {
            //动画完成监听
        }
    });
-// 获取动画持续时间
-int d = PhotoView.getDefaultAnimaDuring();
+// 获取/设置 动画持续时间
+photoView.setAnimaDuring(int during);
+int d = photoView.getAnimaDuring();
+// 获取/设置 最大缩放倍数
+photoView.setMaxScale(float maxScale);
+float maxScale = photoView.getMaxScale();
+// 设置动画的插入器
+photoView.setInterpolator(Interpolator interpolator);
 ```
 
 # 版本
 
+v1.4.0
+   * 增加对普通ImageView的支持，可通过PhotoView的静态方法getImageViewInfo(ImageView)从一个普通的ImageView中获取Info，参照ImageViewActivity
+   * 添加长按事件的监听，setOnLongClickListener()
+   * 提高图片缩放到屏幕边缘的情况下滑动的流畅性
+   * 新增get/setAnimaDuring() get/setMaxScale 获取设置动画的持续时间和图片最大缩放倍数
+   * 通过setInterpolator可设置动画插入器
+   
 v1.3.6
    * 增加图片的旋转功能
    * 版本号命名改变

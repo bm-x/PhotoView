@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.bm.photoview" >
+    package="com.example.bm.photoview">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -9,10 +9,10 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,20 +21,18 @@
         </activity>
         <activity
             android:name=".ImgActivity"
-            android:label="@string/title_activity_img" >
-        </activity>
+            android:label="@string/title_activity_img" />
         <activity
             android:name=".ViewPagerActivity"
-            android:label="@string/title_activity_view_pager" >
-        </activity>
+            android:label="@string/title_activity_view_pager" />
         <activity
             android:name=".ImgClick"
-            android:label="@string/title_activity_img_click" >
-        </activity>
+            android:label="@string/title_activity_img_click" />
         <activity
             android:name=".PhotoBrowse"
-            android:label="@string/title_activity_photo_browse" >
-        </activity>
+            android:label="@string/title_activity_photo_browse" />
+        <activity android:name=".ImageViewActivity" />
+        <activity android:name=".ImageTransformActivity"></activity>
     </application>
 
 </manifest>

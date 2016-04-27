@@ -41,6 +41,7 @@ public class ViewPagerActivity extends Activity {
             public Object instantiateItem(ViewGroup container, int position) {
                 PhotoView view = new PhotoView(ViewPagerActivity.this);
                 view.enable();
+                view.setScaleType(ImageView.ScaleType.FIT_CENTER);
                 view.setImageResource(imgsId[position]);
                 container.addView(view);
                 return view;

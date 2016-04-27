@@ -43,8 +43,7 @@ public class RotateGestureDetector {
                     double deltaSlope = currDegrees - prevDegrees;
 
                     if (Math.abs(deltaSlope) <= MAX_DEGREES_STEP) {
-                        if (mListener != null)
-                            mListener.onRotate((float) deltaSlope, (x2 + x1) / 2, (y2 + y1) / 2);
+                        mListener.onRotate((float) deltaSlope, (x2 + x1) / 2, (y2 + y1) / 2);
                     }
                     mPrevSlope = mCurrSlope;
                 }

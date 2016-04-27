@@ -71,7 +71,7 @@
         android:id="@+id/img1"
         android:layout_width="150dp"
         android:layout_height="100dp"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="25dp"
         android:layout_marginTop="65dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/ddd" />

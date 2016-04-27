@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -40,10 +41,28 @@ public class PhotoBrowse extends Activity {
 
         in.setDuration(300);
         out.setDuration(300);
+        out.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                mBg.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
 
         mParent = findViewById(R.id.parent);
         mBg = findViewById(R.id.bg);
         mPhotoView = (PhotoView) findViewById(R.id.img);
+        mPhotoView.setScaleType(ImageView.ScaleType.FIT_START);
+
         gv = (GridView) findViewById(R.id.gv);
         gv.setAdapter(new BaseAdapter() {
             @Override
@@ -81,7 +100,8 @@ public class PhotoBrowse extends Activity {
 
                 mPhotoView.setImageResource(imgs[position]);
                 mBg.startAnimation(in);
-                mParent.setVisibility(View.VISIBLE);
+                mBg.setVisibility(View.VISIBLE);
+                mParent.setVisibility(View.VISIBLE);;
                 mPhotoView.animaFrom(mInfo);
             }
         });

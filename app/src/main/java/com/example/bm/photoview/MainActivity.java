@@ -35,4 +35,7 @@ public class MainActivity extends Activity {
         startActivity(new Intent(this, PhotoBrowse.class));
     }
 
+    public void imageview(View view) {
+        startActivity(new Intent(this, ImageViewActivity.class));
+    }
 }
