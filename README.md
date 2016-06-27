@@ -7,6 +7,11 @@
 # 效果图
 ![PhotoView](./demo2.gif) ![PhotoView](./demo1.gif)
 
+#注意
+由于facebook的Fresco图片加载组件所加载出来的drawable图片并非真实的drawable，无法直接获取图片真实宽高，也无法直接响应ImageMatrix的变换，
+而且根据Fresco的文档后续DraweeView会直接继承自View,所有暂不考虑支持Fresco。
+对于其他第三方图片加载库如Glide,ImageLoader,xUtils都是支持的
+
 #使用
 1.Gradle添加依赖 (推荐)
 ```gradle
@@ -14,7 +19,6 @@ dependencies {
     compile 'com.bm.photoview:library:1.4.0'
 }
 ```
-
 (或者也可以将项目下载下来，将Info.java和PhotoView.java两个文件拷贝到你的项目中，不推荐)
 
 2.xml添加
