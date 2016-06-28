@@ -3,13 +3,9 @@ package com.example.bm.photoview;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bm.library.PhotoView;
-import com.bumptech.glide.Glide;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 /**
  * Created by liuheng on 2015/6/21.
@@ -25,12 +21,7 @@ public class ImgActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_img);
 
-//        ImageLoaderConfiguration configuration = ImageLoaderConfiguration
-//                .createDefault(this);
-//        ImageLoader.getInstance().init(configuration);
-        //
         mPhotoView = (PhotoView) findViewById(R.id.img1);
-
         mPhotoView.enable();
 
         mPhotoView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -41,6 +32,10 @@ public class ImgActivity extends Activity {
             }
         });
 
+//        使用ImageLoader
+//        ImageLoaderConfiguration configuration = ImageLoaderConfiguration
+//                .createDefault(this);
+//        ImageLoader.getInstance().init(configuration);
 //        ImageLoader.getInstance().displayImage(url, (ImageView) findViewById(R.id.img1));
 
 //        使用Glide加载的gif图片同样支持缩放功能
