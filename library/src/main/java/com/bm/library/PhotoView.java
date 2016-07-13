@@ -1292,9 +1292,12 @@ public class PhotoView extends ImageView {
             float ocx = info.mRect.left + info.mRect.width() / 2;
             float ocy = info.mRect.top + info.mRect.height() / 2;
 
+            float mcx = mine.mRect.left + mine.mRect.width() / 2;
+            float mcy = mine.mRect.top + mine.mRect.height() / 2;
+
             mAnimaMatrix.reset();
-            mAnimaMatrix.postTranslate(-mBaseRect.left, -mBaseRect.top);
-            mAnimaMatrix.postTranslate(ocx - mBaseRect.width() / 2, ocy - mBaseRect.height() / 2);
+            // mAnimaMatrix.postTranslate(-mBaseRect.left, -mBaseRect.top);
+            mAnimaMatrix.postTranslate(ocx - mcx, ocy - mcy);
             mAnimaMatrix.postScale(scale, scale, ocx, ocy);
             mAnimaMatrix.postRotate(info.mDegrees, ocx, ocy);
             executeTranslate();
@@ -1302,7 +1305,7 @@ public class PhotoView extends ImageView {
             mScaleCenter.set(ocx, ocy);
             mRotateCenter.set(ocx, ocy);
 
-            mTranslate.withTranslate(0, 0, (int) (mScreenCenter.x - ocx), (int) (mScreenCenter.y - ocy));
+            mTranslate.withTranslate(0, 0, (int) -(ocx - mcx), (int) -(ocy - mcy));
             mTranslate.withScale(scale, 1);
             mTranslate.withRotate((int) info.mDegrees, 0);
 
