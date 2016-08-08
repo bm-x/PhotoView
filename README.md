@@ -16,7 +16,7 @@
 1.Gradle添加依赖 (推荐)
 ```gradle
 dependencies {
-    compile 'com.bm.photoview:library:1.4.0'
+    compile 'com.bm.photoview:library:1.4.1'
 }
 ```
 (或者也可以将项目下载下来，将Info.java和PhotoView.java两个文件拷贝到你的项目中，不推荐)
