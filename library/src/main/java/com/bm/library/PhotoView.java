@@ -4,11 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -20,9 +18,6 @@ import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.OverScroller;
 import android.widget.Scroller;
-
-import java.lang.annotation.Target;
-import java.sql.Ref;
 
 /**
  * Created by liuheng on 2015/6/21.
@@ -144,11 +139,15 @@ public class PhotoView extends ImageView {
 
     @Override
     public void setScaleType(ScaleType scaleType) {
-        ScaleType old = mScaleType;
-        mScaleType = scaleType;
+        if (scaleType == ScaleType.MATRIX) return;
 
-        if (old != scaleType)
-            initBase();
+        if (scaleType != mScaleType) {
+            mScaleType = scaleType;
+
+            if (isInit) {
+                initBase();
+            }
+        }
     }
 
     @Override
@@ -412,10 +411,10 @@ public class PhotoView extends ImageView {
         initFitCenter();
 
         float ty = -mImgRect.top;
-        mTranslateY += ty;
         mAnimaMatrix.postTranslate(0, ty);
         executeTranslate();
         resetBase();
+        mTranslateY += ty;
     }
 
     private void initFitEnd() {
@@ -810,10 +809,11 @@ public class PhotoView extends ImageView {
             }
 
             doTranslateReset(mImgRect);
+
             mTranslate.withFling(vx, vy);
 
             mTranslate.start();
-//            onUp(e2);
+            // onUp(e2);
             return super.onFling(e1, e2, velocityX, velocityY);
         }
 

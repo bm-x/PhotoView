@@ -61,7 +61,7 @@ public class PhotoBrowse extends Activity {
         mParent = findViewById(R.id.parent);
         mBg = findViewById(R.id.bg);
         mPhotoView = (PhotoView) findViewById(R.id.img);
-        mPhotoView.setScaleType(ImageView.ScaleType.FIT_START);
+        mPhotoView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
 
         gv = (GridView) findViewById(R.id.gv);
         gv.setAdapter(new BaseAdapter() {

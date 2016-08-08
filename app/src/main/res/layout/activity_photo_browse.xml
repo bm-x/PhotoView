@@ -11,7 +11,7 @@
         android:layout_margin="15dp"
         android:horizontalSpacing="5dp"
         android:numColumns="3"
-        android:verticalSpacing="5dp"></GridView>
+        android:verticalSpacing="5dp" />
 
     <FrameLayout
         android:id="@+id/parent"
@@ -28,7 +28,7 @@
         <com.bm.library.PhotoView
             android:id="@+id/img"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></com.bm.library.PhotoView>
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 
