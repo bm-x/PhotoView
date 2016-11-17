@@ -56,6 +56,7 @@ public class PhotoView extends ImageView {
     private boolean isKnowSize;
     private boolean hasOverTranslate;
     private boolean isEnable = false;
+    private boolean isRotateEnable = false;
     private boolean isInit;
     private boolean mAdjustViewBounds;
     // 当前是否处于放大状态
@@ -202,6 +203,20 @@ public class PhotoView extends ImageView {
      */
     public void disenable() {
         isEnable = false;
+    }
+
+    /**
+     * 启用旋转功能
+     */
+    public void enableRotate() {
+        isRotateEnable = true;
+    }
+
+    /**
+     * 禁用旋转功能
+     */
+    public void disableRotate() {
+        isRotateEnable = false;
     }
 
     /**
@@ -569,7 +584,9 @@ public class PhotoView extends ImageView {
             if (event.getPointerCount() >= 2) hasMultiTouch = true;
 
             mDetector.onTouchEvent(event);
-            mRotateDetector.onTouchEvent(event);
+            if (isRotateEnable) {
+                mRotateDetector.onTouchEvent(event);
+            }
             mScaleDetector.onTouchEvent(event);
 
             if (Action == MotionEvent.ACTION_UP || Action == MotionEvent.ACTION_CANCEL) onUp();
