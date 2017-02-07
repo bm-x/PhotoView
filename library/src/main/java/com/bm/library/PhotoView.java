@@ -1401,4 +1401,13 @@ public class PhotoView extends ImageView {
             mTranslate.start();
         }
     }
+
+    public void rotate(float degrees) {
+        mDegrees += degrees;
+        int centerX = (int) (mWidgetRect.left + mWidgetRect.width() / 2);
+        int centerY = (int) (mWidgetRect.top + mWidgetRect.height() /2);
+
+        mAnimaMatrix.postRotate(degrees, centerX, centerY);
+        executeTranslate();
+    }
 }
