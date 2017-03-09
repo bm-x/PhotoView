@@ -1,8 +1,6 @@
 # PhotoView 图片浏览缩放控件
 
-和普通的ImageView一样的使用方法
-
-如使用过程中有任何bug，意见或建议，可邮件给我 bmme@vip.qq.com
+一个流畅的photoview
 
 # 效果图
 ![PhotoView](./demo2.gif) ![PhotoView](./demo1.gif)
@@ -60,6 +58,12 @@ float maxScale = photoView.getMaxScale();
 // 设置动画的插入器
 photoView.setInterpolator(Interpolator interpolator);
 ```
+
+# 关于
+
+若遇到使用上的问题，请先翻看Issues，大部分问题是已经有人提出过的。(如https://github.com/bm-x/PhotoView/issues/9 , https://github.com/bm-x/PhotoView/issues/5)
+若没找到相关的问题，可以先在Issues中提出，这样以便其他人遇到同样问题时可快速找到答案。
+若长时间未回复，可邮件给我bmme@vip.qq.com
 
 # 版本
 
