@@ -61,9 +61,9 @@ photoView.setInterpolator(Interpolator interpolator);
 
 # 关于
 
-若遇到使用上的问题，请先翻看Issues，大部分问题是已经有人提出过的。(如https://github.com/bm-x/PhotoView/issues/9 , https://github.com/bm-x/PhotoView/issues/5)
-若没找到相关的问题，可以先在Issues中提出，这样以便其他人遇到同样问题时可快速找到答案。
-若长时间未回复，可邮件给我bmme@vip.qq.com
+若遇到使用上的问题，请先翻看Issues，大部分问题是已经有人提出过的。(如[#9](https://github.com/bm-x/PhotoView/issues/9),[#5](https://github.com/bm-x/PhotoView/issues/5))  
+若没找到相关的问题，可以先在Issues中提出，这样以便其他人遇到同样问题时可快速找到答案。  
+若长时间未回复，可邮件给我bmme@vip.qq.com  
 
 # 版本
 
