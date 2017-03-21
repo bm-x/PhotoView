@@ -1,3 +1,5 @@
+[![Android Gems](http://www.android-gems.com/badge/bm-x/PhotoView.svg?branch=master)](http://www.android-gems.com/lib/bm-x/PhotoView)
+
 # PhotoView 图片浏览缩放控件
 
 一个流畅的photoview
