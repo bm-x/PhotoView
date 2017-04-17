@@ -5,12 +5,12 @@
 # 效果图
 ![PhotoView](./demo2.gif) ![PhotoView](./demo1.gif)
 
-#注意
+# 注意
 由于facebook的Fresco图片加载组件所加载出来的drawable图片并非真实的drawable,无法直接获取图片真实宽高,也无法直接响应ImageMatrix的变换，
 且根据Fresco文档的介绍,在后续的版本中,DraweeView会直接继承自View,所有暂不考虑支持Fresco。
 对于其他第三方图片加载库如Glide,ImageLoader,xUtils都是支持的
 
-#使用
+# 使用
 1.Gradle添加依赖 (推荐)
 ```gradle
 dependencies {
