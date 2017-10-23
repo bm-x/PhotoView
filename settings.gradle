@@ -1,1 +1,1 @@
-include ':library', ':app'
+include ':photoview_java', ':demo_java', ':photoview', ':demo'

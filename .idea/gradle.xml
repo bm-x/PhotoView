@@ -8,17 +8,13 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/demo" />
+            <option value="$PROJECT_DIR$/demo_java" />
+            <option value="$PROJECT_DIR$/photoview" />
+            <option value="$PROJECT_DIR$/photoview_java" />
           </set>
         </option>
-        <option name="myModules">
-          <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/library" />
-          </set>
-        </option>
+        <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

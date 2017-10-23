@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="photoView">
+        <attr name="extendType" format="integer">
+            <enum name="centerFitStart" value="-100" />
+            <enum name="centerFitEnd" value="-101" />
+            <enum name="fitCenterStart" value="-102" />
+            <enum name="fitCenterEnd" value="-103" />
+            <enum name="centerCropStart" value="-104" />
+            <enum name="centerCropEnd" value="-105" />
+        </attr>
+        <attr name="zoomable" format="boolean" />
+        <attr name="rotatable" format="boolean" />
+        <attr name="touchable" format="boolean" />
+        <attr name="maxScaleLevel" format="float" />
+        <attr name="maxOverScroll" format="dimension" />
+        <attr name="animaDuring" format="integer" />
+        <attr name="maxFlingOverScroll" format="dimension" />
+        <attr name="maxOverScrollResistance" format="dimension" />
+        <attr name="swipeClose" format="boolean" />
+        <attr name="maxSwipeCloseDistance" format="dimension" />
+        <attr name="swipeMinScaleDownLevel" format="float" />
+    </declare-styleable>
+</resources>
