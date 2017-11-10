@@ -1,6 +1,6 @@
 # PhotoView 图片浏览缩放控件
 
-一个流畅的photoview
+一个流畅的photoview 
 
 # 效果图
 ![PhotoView](./demo2.gif) ![PhotoView](./demo1.gif)
