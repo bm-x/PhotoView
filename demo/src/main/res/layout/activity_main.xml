@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,10 +7,11 @@
     android:orientation="vertical"
     tools:context="com.okfunc.demo.MainActivity">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:text="next"
-        android:onClick="next"
-        android:layout_height="wrap_content" />
+    <com.okfunc.photoview.PhotoView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:scaleType="fitCenter"
+        android:layout_margin="30dp"
+        android:src="@mipmap/aaa" />
 
-</LinearLayout>
+</RelativeLayout>

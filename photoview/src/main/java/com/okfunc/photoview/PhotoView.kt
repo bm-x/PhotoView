@@ -1,16 +1,14 @@
 package com.okfunc.photoview
 
 import android.content.Context
-import android.graphics.Matrix
-import android.graphics.Point
-import android.graphics.PointF
-import android.graphics.RectF
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import android.view.View
 import android.view.animation.Interpolator
 import android.widget.ImageView
 import android.widget.OverScroller
@@ -22,6 +20,7 @@ import android.widget.Scroller
  */
 open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, defStyleRes: Int = 0) : ImageView(context, attrs, defStyleAttr) {
 
+    protected var isInit = false
     protected var hasMultiTouch = false
     protected var hasDrawbale = false
     protected var isKnowSize = false
@@ -44,7 +43,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
     protected val baseRect = RectF()      // 后期所有图片变化的基准大小
     protected val imageRect = RectF()     // 图片由基准大小经过变换后的实际显示大小
     protected val tmpRect = RectF()
-    protected var clipRect = RectF()
+    protected var clipRect: RectF? = null
 
     protected val screenCenter = PointF() // 屏幕中心点
     protected val scaleCenter = PointF()  // 缩放中心点
@@ -62,6 +61,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
     protected var _longClickListener: OnLongClickListener? = null
 
     protected var mScaleType: ScaleType? = null
+    protected var fromInfo: PhotoInfo? = null
 
     var swipeDownCloseListener: SwipeCloseListener? = null
 
@@ -232,6 +232,9 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
                 else -> applyExtendType(extendType ?: 0)
             }
         }
+
+        isInit = true
+
     }
 
     /**
@@ -463,14 +466,6 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         isImageHeightOverScreen = imageRect.height() > widgetRect.height()
     }
 
-    protected fun getDrawableSize(drawable: Drawable): Pair<Int, Int> {
-        var width = drawable.minimumWidth
-        var height = drawable.minimumHeight
-        if (width == 0) width = drawable.bounds.width()
-        if (height == 0) height = drawable.bounds.height()
-        return Pair<Int, Int>(width, height)
-    }
-
     protected fun hasSize(drawable: Drawable)
             = !((drawable.getIntrinsicHeight() <= 0 || drawable.getIntrinsicWidth() <= 0)
             && (drawable.getMinimumWidth() <= 0 || drawable.getMinimumHeight() <= 0)
@@ -559,6 +554,15 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
 
         return true
+    }
+
+    override fun draw(canvas: Canvas) {
+        super.draw(canvas)
+        val cr = clipRect
+        clipRect = null
+        if (cr != null) {
+            canvas.clipRect(cr)
+        }
     }
 
     protected fun onDown() {
@@ -761,7 +765,6 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
             return true
         }
     }
-
 
     private val mRotateDetector = RotateGestureDetector(object : RotateListener {
         override fun onRotate(degrees: Float, focusX: Float, focusY: Float) {
@@ -1123,6 +1126,93 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
     }
 
+    fun getPhotoInfo(): PhotoInfo {
+        val screenRect = RectF()
+        val p = IntArray(2)
+        getLocation(this, p)
+        screenRect.set(p[0] + imageRect.left, p[1] + imageRect.top, p[0] + imageRect.right, p[1] + imageRect.bottom)
+
+        return PhotoInfo(
+                mScaleType!!,
+                extendType,
+                mDegrees,
+                mScale,
+                mTranslateX,
+                mTranslateY,
+                screenRect,
+                widgetRect,
+                imageRect)
+    }
+
+    protected fun reset() {
+        animaMatrix.reset()
+        executeTranslate()
+        mScale = 1f
+        mTranslateX = 0
+        mTranslateY = 0
+    }
+
+    /**
+     * 在PhotoView内部还没有图片的时候同样可以调用该方法
+     * 此时并不会播放动画，当给PhotoView设置图片后会自动播放动画。
+     * 若等待时间过长也没有给控件设置图片，则会忽略该动画，若要再次播放动画则需要重新调用该方法
+     * (等待的时间默认500毫秒，可以通过setMaxAnimFromWaiteTime(int)设置最大等待时间)
+     */
+    fun animaFrom(info: PhotoInfo) {
+        if (isInit) {
+            reset()
+
+            val mine = getPhotoInfo()
+
+            val scaleX = info.imageRect.width() / mine.imageRect.width()
+            val scaleY = info.imageRect.height() / mine.imageRect.height()
+            val scale = if (scaleX < scaleY) scaleX else scaleY
+
+            val ocx = info.screenRect.left + info.screenRect.width() / 2
+            val ocy = info.screenRect.top + info.screenRect.height() / 2
+
+            val mcx = mine.screenRect.left + mine.screenRect.width() / 2
+            val mcy = mine.screenRect.top + mine.screenRect.height() / 2
+
+            animaMatrix.reset()
+            animaMatrix.postTranslate(ocx - mcx, ocy - mcy)
+            animaMatrix.postScale(scale, scale, ocx, ocy)
+            animaMatrix.postRotate(info.degrees, ocx, ocy)
+            executeTranslate()
+
+            scaleCenter.set(ocx, ocy)
+            rotateCenter.set(ocx, ocy)
+
+            transform.withTranslate((-(ocx - mcx)).toInt(), (-(ocy - mcy)).toInt())
+            transform.withScale(scale, 1f)
+            transform.withRotate(info.degrees.toInt(), 0)
+
+            if (info.widgetRect.width() < info.imageRect.width() || info.widgetRect.height() < info.imageRect.height()) {
+                var clipX = info.widgetRect.width() / info.imageRect.width()
+                var clipY = info.widgetRect.height() / info.imageRect.height()
+                clipX = if (clipX > 1) 1f else clipX
+                clipY = if (clipY > 1) 1f else clipY
+
+                val c = when {
+                    info.scaleType == ImageView.ScaleType.FIT_START -> START()
+                    info.scaleType == ImageView.ScaleType.FIT_END -> END()
+                    else -> OTHER()
+                }
+
+                transform.withClip(clipX, clipY, 1 - clipX, 1 - clipY, animaDuring / 3, c)
+
+                tmpMatrix.setScale(clipX, clipY, (imageRect.left + imageRect.right) / 2, c.calculateTop())
+                tmpMatrix.mapRect(transform.clipRect, imageRect)
+                clipRect = transform.clipRect
+            }
+
+            transform.start()
+        } else {
+            fromInfo = info
+        }
+    }
+
+
     companion object {
         // 图片真实带下小于控件大小，则使用center, 若图大小大于控件大小，使用 fit_center_*
         val CUSTOM_TYPE_CENTER_FIT_START = -100
@@ -1158,6 +1248,66 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
             }
 
             out.set(l, t, r, b)
+        }
+
+        private fun getLocation(target: View, position: IntArray) {
+
+            position[0] += target.left
+            position[1] += target.top
+
+            var viewParent = target.parent
+            while (viewParent is View) {
+                val view = viewParent as View
+
+                if (view.id == android.R.id.content) return
+
+                position[0] -= view.scrollX
+                position[1] -= view.scrollY
+
+                position[0] += view.left
+                position[1] += view.top
+
+                viewParent = view.parent
+            }
+
+            position[0] = (position[0] + 0.5f).toInt()
+            position[1] = (position[1] + 0.5f).toInt()
+        }
+
+        fun getDrawableSize(drawable: Drawable): Pair<Int, Int> {
+            var width = drawable.minimumWidth
+            var height = drawable.minimumHeight
+            if (width == 0) width = drawable.bounds.width()
+            if (height == 0) height = drawable.bounds.height()
+            return Pair<Int, Int>(width, height)
+        }
+
+        fun getImageViewInfo(imgView: ImageView): PhotoInfo {
+            val p = IntArray(2)
+            getLocation(imgView, p)
+
+            val drawable = imgView.drawable
+
+            val matrix = imgView.imageMatrix
+
+            val (width, height) = getDrawableSize(drawable)
+
+            val imgRect = RectF(0f, 0f, width.toFloat(), height.toFloat())
+            matrix.mapRect(imgRect)
+
+            val screenRect = RectF(p[0] + imgRect.left, p[1] + imgRect.top, p[0] + imgRect.right, p[1] + imgRect.bottom)
+            val widgetRect = RectF(0f, 0f, imgView.width.toFloat(), imgView.height.toFloat())
+
+            return PhotoInfo(
+                    imgView.scaleType,
+                    null,
+                    0f,
+                    1.0f,
+                    0,
+                    0,
+                    screenRect,
+                    widgetRect,
+                    imgRect)
         }
     }
 }
