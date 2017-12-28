@@ -13,6 +13,8 @@ import android.view.animation.Interpolator
 import android.widget.ImageView
 import android.widget.OverScroller
 import android.widget.Scroller
+import kotlin.math.abs
+import kotlin.math.max
 
 
 /**
@@ -110,21 +112,21 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
     private fun initAttributes(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) {
         super.setScaleType(ScaleType.MATRIX)
 
-        val a = context.obtainStyledAttributes(attrs, R.styleable.photoView, defStyleAttr, defStyleRes)
-        if (a.hasValue(R.styleable.photoView_extendType)) {
-            extendType = a.getInt(R.styleable.photoView_extendType, 0)
+        val a = context.obtainStyledAttributes(attrs, R.styleable.PhotoView, defStyleAttr, defStyleRes)
+        if (a.hasValue(R.styleable.PhotoView_extendType)) {
+            extendType = a.getInt(R.styleable.PhotoView_extendType, 0)
         }
-        zoomable = a.getBoolean(R.styleable.photoView_zoomable, false)
-        rotatable = a.getBoolean(R.styleable.photoView_rotatable, false)
-        touchable = a.getBoolean(R.styleable.photoView_touchable, false)
-        maxSacleLevel = a.getFloat(R.styleable.photoView_maxScaleLevel, 2.5f)
-        animaDuring = a.getInt(R.styleable.photoView_animaDuring, 320)
-        maxOverScroll = a.getDimension(R.styleable.photoView_maxOverScroll, dp2px(30f).toFloat()).toInt()
-        maxFlingOverScroll = a.getDimension(R.styleable.photoView_maxFlingOverScroll, dp2px(30f).toFloat()).toInt()
-        maxOverScrollResistance = a.getDimension(R.styleable.photoView_maxOverScrollResistance, dp2px(140f).toFloat()).toInt()
-        swipeClose = a.getBoolean(R.styleable.photoView_swipeClose, false)
-        maxSwipeCloseDistance = a.getDimension(R.styleable.photoView_maxSwipeCloseDistance, dp2px(300f).toFloat()).toInt()
-        swipeMinScaleDownLevel = a.getFloat(R.styleable.photoView_swipeMinScaleDownLevel, 0.6f)
+        zoomable = a.getBoolean(R.styleable.PhotoView_zoomable, false)
+        rotatable = a.getBoolean(R.styleable.PhotoView_rotatable, false)
+        touchable = a.getBoolean(R.styleable.PhotoView_touchable, false)
+        maxSacleLevel = a.getFloat(R.styleable.PhotoView_maxScaleLevel, 2.5f)
+        animaDuring = a.getInt(R.styleable.PhotoView_animaDuring, 320)
+        maxOverScroll = a.getDimension(R.styleable.PhotoView_maxOverScroll, dp2px(30f).toFloat()).toInt()
+        maxFlingOverScroll = a.getDimension(R.styleable.PhotoView_maxFlingOverScroll, dp2px(30f).toFloat()).toInt()
+        maxOverScrollResistance = a.getDimension(R.styleable.PhotoView_maxOverScrollResistance, dp2px(140f).toFloat()).toInt()
+        swipeClose = a.getBoolean(R.styleable.PhotoView_swipeClose, false)
+        maxSwipeCloseDistance = a.getDimension(R.styleable.PhotoView_maxSwipeCloseDistance, dp2px(300f).toFloat()).toInt()
+        swipeMinScaleDownLevel = a.getFloat(R.styleable.PhotoView_swipeMinScaleDownLevel, 0.6f)
         a.recycle()
     }
 
@@ -143,6 +145,10 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
             isKnowSize = true
             initDrawableState()
         }
+    }
+
+    fun setSwipeCloseListener(l: () -> Unit) {
+        swipeCloseController?.closeListener = l
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
@@ -235,6 +241,10 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
         isInit = true
 
+        if (fromInfo != null) {
+            animaFrom(fromInfo!!)
+            fromInfo = null
+        }
     }
 
     /**
@@ -724,6 +734,8 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
 
         override fun onDoubleTap(e: MotionEvent): Boolean {
+            removeCallbacks(mClickRunnable)
+
             transform.stop()
 
             var from = 1f
@@ -801,7 +813,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
     }
 
-    protected val mClickRunnable: (() -> Unit) = {
+    protected val mClickRunnable = Runnable {
         _clickListener?.onClick(this@PhotoView)
     }
 
@@ -839,7 +851,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
         var C: ClipCalculate? = null
 
-        var completeCallback: Runnable? = null
+        var completeBlock: (() -> Unit)? = null
 
         fun setInterpolator(interpolator: Interpolator) {
             interpolatorDelegate.target = interpolator
@@ -865,44 +877,6 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
                 = rotateScroller.startScroll(fromDegrees, 0, toDegrees - fromDegrees, 0, during)
 
         fun withFling(velocityX: Float, velocityY: Float) {
-
-//            var minX: Int
-//            var maxX: Int
-//            var minY: Int
-//            var maxY: Int
-//            val overX: Int
-//            val overY: Int
-//            val distanceX: Int
-//            val distanceY: Int
-//
-//            if (velocityX < 0) {
-//                lastFling.x = Int.MAX_VALUE
-//                distanceX = (Int.MAX_VALUE - (imageRect.right - widgetRect.right)).toInt()
-//                minX = distanceX
-//                maxX = Int.MAX_VALUE
-//                overX = Int.MAX_VALUE - minX
-//            } else {
-//                lastFling.x = 0
-//                distanceX = Math.abs(imageRect.left).toInt()
-//                minX = 0
-//                maxX = distanceX
-//                overX = distanceX
-//            }
-//
-//            if (velocityY < 0) {
-//                lastFling.y = Int.MAX_VALUE
-//                distanceY = (Int.MAX_VALUE - imageRect.bottom + widgetRect.bottom).toInt()
-//                minY = distanceY
-//                maxY = Int.MAX_VALUE
-//                overY = Int.MAX_VALUE - minY
-//            } else {
-//                lastFling.y = 0
-//                distanceY = Math.abs(imageRect.top).toInt()
-//                minY = 0
-//                maxY = distanceY
-//                overY = distanceY
-//            }
-
             lastFling.x = if (velocityX < 0) Integer.MAX_VALUE else 0
             var distanceX = (if (velocityX > 0) Math.abs(imageRect.left) else imageRect.right - widgetRect.right).toInt()
             distanceX = if (velocityX < 0) Integer.MAX_VALUE - distanceX else distanceX
@@ -1027,8 +1001,8 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
                 invalidate()
 
-                completeCallback?.run()
-                completeCallback = null
+                completeBlock?.invoke()
+                completeBlock = null
             }
         }
 
@@ -1053,6 +1027,8 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         var handlerAction = false
         var startTranslateY = 0
 
+        var closeListener: (() -> Unit)? = null
+
         fun onDown() {
             isFirstAction = true
             handlerAction = false
@@ -1060,8 +1036,8 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
 
         fun onUp(): Boolean {
-
-            return false
+            if (handlerAction) closeListener?.invoke()
+            return handlerAction
         }
 
         fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
@@ -1069,8 +1045,10 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
             return false
         }
 
+        // distanceY < 0  向下滑动
+        // distanceY > 0  向上滑动
         fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-            if (mScale > 1f) return false // 已经放大了的情况下不支持滑动关闭
+            // if (mScale > 1f) return false // 已经放大了的情况下不支持滑动关闭
 
             if (hasMultiTouch) {
                 handlerAction = false
@@ -1079,9 +1057,14 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
             if (!isFirstAction && !handlerAction) return false
 
-            if (isFirstAction && !handlerAction && distanceY < 0
-                    && ((isImageHeightOverScreen && imageRect.top <= 1f) || (!isImageHeightOverScreen))) {
-                handlerAction = true
+//            if (isFirstAction && !handlerAction && distanceY < 0
+//                    && ((isImageHeightOverScreen && imageRect.top <= 1f) || (!isImageHeightOverScreen))) {
+//                handlerAction = true
+//            }
+
+            if (isFirstAction && !handlerAction && abs(distanceX) < abs(distanceY)) {
+                if (distanceY < 0 && imageRect.top >= 0) handlerAction = true
+                else if (distanceY > 0 && imageRect.bottom <= widgetRect.bottom) handlerAction = true
             }
 
             if (handlerAction) {
@@ -1102,7 +1085,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
                 val scrolled = Math.abs(mTranslateY - startTranslateY)
 
-                var scale: Float = 1.0f
+                var scale = 1.0f
 
                 if (scrolled < maxSwipeCloseDistance) {
                     scale = 1 - Math.min((scrolled / maxSwipeCloseDistance.toFloat()), 1f) * swipeMinScaleDownLevel
@@ -1212,6 +1195,58 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
     }
 
+    fun animaTo(to: PhotoInfo, complete: (() -> Unit)? = null) {
+        if (!isInit) return
+
+        transform.stop()
+
+        mTranslateX = 0
+        mTranslateY = 0
+
+        val tcx = to.screenRect.left + to.screenRect.width() / 2
+        val tcy = to.screenRect.top + to.screenRect.height() / 2
+
+        scaleCenter.set(imageRect.left + imageRect.width() / 2, imageRect.top + imageRect.height() / 2)
+        rotateCenter.set(scaleCenter)
+
+        // 将图片旋转回正常位置，用以计算
+        animaMatrix.postRotate(-mDegrees, scaleCenter.x, scaleCenter.y)
+        animaMatrix.mapRect(imageRect, baseRect)
+
+        val scaleX = to.imageRect.width() / baseRect.width()
+        val scaleY = to.imageRect.height() / baseRect.height()
+        val scale = max(scaleX, scaleY)
+
+        animaMatrix.postRotate(mDegrees, scaleCenter.x, scaleCenter.y)
+        animaMatrix.mapRect(imageRect, baseRect)
+
+        mDegrees %= 360
+
+        transform.withTranslate((tcx - scaleCenter.x).toInt(), (tcy - scaleCenter.y).toInt())
+        transform.withScale(mScale, scale)
+        transform.withRotate(mDegrees.toInt(), to.degrees.toInt(), animaDuring * 2 / 3)
+
+        if (to.widgetRect.width() < to.screenRect.width() || to.widgetRect.height() < to.screenRect.height()) {
+            var clipX = to.widgetRect.width() / to.screenRect.width()
+            var clipY = to.widgetRect.height() / to.screenRect.height()
+            if (clipX > 1) clipX = 1f
+            if (clipY > 1) clipY = 1f
+
+            val c = when (to.scaleType) {
+                ScaleType.FIT_START -> START()
+                ScaleType.FIT_END -> END()
+                else -> OTHER()
+            }
+
+            postDelayed(
+                    { transform.withClip(1f, 1f, -1 + clipX, -1 + clipY, animaDuring / 2, c) },
+                    (animaDuring / 2).toLong()
+            )
+        }
+
+        transform.completeBlock = complete
+        transform.start()
+    }
 
     companion object {
         // 图片真实带下小于控件大小，则使用center, 若图大小大于控件大小，使用 fit_center_*

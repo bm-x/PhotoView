@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="photoView">
+    <declare-styleable name="PhotoView">
         <attr name="extendType" format="integer">
             <enum name="centerFitStart" value="-100" />
             <enum name="centerFitEnd" value="-101" />
