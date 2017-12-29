@@ -20,5 +20,6 @@
         <attr name="swipeClose" format="boolean" />
         <attr name="maxSwipeCloseDistance" format="dimension" />
         <attr name="swipeMinScaleDownLevel" format="float" />
+        <attr name="swipeDownScale" format="boolean" />
     </declare-styleable>
 </resources>

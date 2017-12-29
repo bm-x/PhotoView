@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -29,6 +28,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
     protected var isZoomUp = false
     protected var isImageWidthOverScreen = false
     protected var isImageHeightOverScreen = false
+    protected var swipeDownScale = true
 
     protected var isOverTranslate = false
     protected var canRotate = false
@@ -59,7 +59,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
     protected val transform = Transform()
     protected var swipeCloseController: SwipeCloseController? = null
 
-    protected var _clickListener: OnClickListener? = null
+    protected var _doubleClickListener: OnDoubleClickListener? = null
     protected var _longClickListener: OnLongClickListener? = null
 
     protected var mScaleType: ScaleType? = null
@@ -126,7 +126,8 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         maxOverScrollResistance = a.getDimension(R.styleable.PhotoView_maxOverScrollResistance, dp2px(140f).toFloat()).toInt()
         swipeClose = a.getBoolean(R.styleable.PhotoView_swipeClose, false)
         maxSwipeCloseDistance = a.getDimension(R.styleable.PhotoView_maxSwipeCloseDistance, dp2px(300f).toFloat()).toInt()
-        swipeMinScaleDownLevel = a.getFloat(R.styleable.PhotoView_swipeMinScaleDownLevel, 0.6f)
+        swipeMinScaleDownLevel = a.getFloat(R.styleable.PhotoView_swipeMinScaleDownLevel, 0.75f)
+        swipeDownScale = a.getBoolean(R.styleable.PhotoView_swipeDownScale, true)
         a.recycle()
     }
 
@@ -151,8 +152,8 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         swipeCloseController?.closeListener = l
     }
 
-    override fun setOnClickListener(l: OnClickListener?) {
-        _clickListener = l;
+    fun setDoubleClicckListener(l: OnDoubleClickListener?) {
+        _doubleClickListener = l
     }
 
     override fun setOnLongClickListener(l: OnLongClickListener?) {
@@ -544,7 +545,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
             = Math.abs(Math.round(rect.left) - (widgetRect.width() - rect.width()) / 2) < 1
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-        return if (rotatable || zoomable || touchable) onTouchEvent(event) else false
+        return onTouchEvent(event)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -553,7 +554,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
         if (event.action == MotionEvent.ACTION_DOWN) onDown()
 
-        if (touchable) mDetector.onTouchEvent(event)
+        mDetector.onTouchEvent(event)
 
         if (rotatable) mRotateDetector.onTouchEvent(event)
 
@@ -643,6 +644,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
 
         override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+            if (!touchable) return false
             if (hasMultiTouch) return false
             if (!isImageWidthOverScreen && !isImageHeightOverScreen) return false
             if (transform.isRunning) return false
@@ -682,6 +684,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
 
         override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+            if (!touchable) return false
             if (transform.isRunning) transform.stop()
             if (swipeCloseController != null && swipeCloseController!!.onScroll(e1, e2, distanceX, distanceY)) return true
 
@@ -735,6 +738,9 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
         override fun onDoubleTap(e: MotionEvent): Boolean {
             removeCallbacks(mClickRunnable)
+            _doubleClickListener?.onDoubleClick(this@PhotoView)
+
+            if (!touchable) return false
 
             transform.stop()
 
@@ -814,7 +820,7 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
     }
 
     protected val mClickRunnable = Runnable {
-        _clickListener?.onClick(this@PhotoView)
+        performClick()
     }
 
     interface ClipCalculate {
@@ -1025,9 +1031,19 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
         var isFirstAction = true
         var handlerAction = false
+            set(value) {
+                field = value
+                if (value) {
+                    startScake = mScale
+                    cScale = mScale
+                }
+            }
         var startTranslateY = 0
 
         var closeListener: (() -> Unit)? = null
+
+        var startScake = 0f
+        var cScale = 0f
 
         fun onDown() {
             isFirstAction = true
@@ -1036,8 +1052,11 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         }
 
         fun onUp(): Boolean {
-            if (handlerAction) closeListener?.invoke()
-            return handlerAction
+            if (cScale / startScake < swipeMinScaleDownLevel) {
+                if (handlerAction) closeListener?.invoke()
+                return handlerAction
+            }
+            return false
         }
 
         fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
@@ -1048,19 +1067,12 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
         // distanceY < 0  向下滑动
         // distanceY > 0  向上滑动
         fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-            // if (mScale > 1f) return false // 已经放大了的情况下不支持滑动关闭
-
             if (hasMultiTouch) {
                 handlerAction = false
                 return false
             }
 
             if (!isFirstAction && !handlerAction) return false
-
-//            if (isFirstAction && !handlerAction && distanceY < 0
-//                    && ((isImageHeightOverScreen && imageRect.top <= 1f) || (!isImageHeightOverScreen))) {
-//                handlerAction = true
-//            }
 
             if (isFirstAction && !handlerAction && abs(distanceX) < abs(distanceY)) {
                 if (distanceY < 0 && imageRect.top >= 0) handlerAction = true
@@ -1085,19 +1097,20 @@ open class PhotoView(context: Context, attrs: AttributeSet? = null, defStyleAttr
 
                 val scrolled = Math.abs(mTranslateY - startTranslateY)
 
-                var scale = 1.0f
-
                 if (scrolled < maxSwipeCloseDistance) {
-                    scale = 1 - Math.min((scrolled / maxSwipeCloseDistance.toFloat()), 1f) * swipeMinScaleDownLevel
+                    val scale = 1 - Math.min((scrolled / maxSwipeCloseDistance.toFloat()), 1f) * swipeMinScaleDownLevel
 
-                    val deltaScale = 1 - (mScale - scale)
+                    val deltaScale = 1 - (cScale - startScake * scale)
 
                     val imgcx = imageRect.left + imageRect.width() / 2
                     val imgcy = imageRect.top + imageRect.height() / 2
 
-                    mScale = scale
+                    cScale -= (1 - deltaScale)
 
-                    animaMatrix.postScale(deltaScale, deltaScale, imgcx, imgcy)
+                    if (swipeDownScale) {
+                        mScale = cScale
+                        animaMatrix.postScale(deltaScale, deltaScale, imgcx, imgcy)
+                    }
                 }
 
                 executeTranslate()

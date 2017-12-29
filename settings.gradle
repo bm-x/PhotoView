@@ -1,1 +1,1 @@
-include ':photoview_java', ':demo_java', ':photoview', ':demo'
+include ':photoview', ':demo'

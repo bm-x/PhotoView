@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.okfunc.photoview.PhotoView
+        android:layout_width="210dp"
+        android:layout_height="130dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="50dp"
+        android:scaleType="matrix"
+        android:src="@mipmap/aaa"
+        app:extendType="fitCenterStart" />
+
+    <RadioGroup
+        android:id="@+id/scaleType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="15dp"
+        android:background="#fff3de"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="8dp">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="centerCrop"
+            android:text="centerCrop" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="center"
+            android:text="center" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="fitCenter"
+            android:text="fitCenter" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="fitStart"
+            android:text="fitStart" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="fitEnd"
+            android:text="fitEnd" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="fitXY"
+            android:text="fitXY" />
+
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/extendScaleType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/scaleType"
+        android:background="#def7ff"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="8dp">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="centerCropEnd"
+            android:text="centerCropEnd" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="centerCropStart"
+            android:text="centerCropStart" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="centerFitStart"
+            android:text="centerFitStart" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="centerFitEnd"
+            android:text="centerFitEnd" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="fitCenterStart"
+            android:text="fitCenterStart" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tag="fitCenterEnd"
+            android:text="fitCenterEnd" />
+    </RadioGroup>
+
+</RelativeLayout>

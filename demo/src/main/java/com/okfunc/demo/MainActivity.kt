@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.okfunc.photoview.PhotoView
 
 class MainActivity : AppCompatActivity() {
 
@@ -12,10 +11,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
     }
 
-    fun next(view: View) {
-        startActivity(Intent(this, Next::class.java))
+    fun imageTransform(view: View) {
+        startActivity(Intent(this, ImageTransformActivity::class.java))
+    }
+
+    fun basic(view: View) {
+        startActivity(Intent(this, BasicActivity::class.java))
     }
 }
