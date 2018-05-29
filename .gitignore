@@ -7,3 +7,7 @@
 /captures
 *.iml
 /.idea
+/app
+/demo_java
+/library
+/photoview_java
