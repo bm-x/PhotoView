@@ -12,7 +12,7 @@ public class Info {
     // 内部图片在整个手机界面的位置
     RectF mRect = new RectF();
 
-    // 控件在窗口的位置
+    // 图片在ImageView中的位置
     RectF mImgRect = new RectF();
 
     RectF mWidgetRect = new RectF();

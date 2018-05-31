@@ -32,7 +32,8 @@
             android:name=".PhotoBrowse"
             android:label="@string/title_activity_photo_browse" />
         <activity android:name=".ImageViewActivity" />
-        <activity android:name=".ImageTransformActivity"></activity>
+        <activity android:name=".ApplyImageInfoActivity"
+            android:label="缩放移动上方图片，通过apply应用到下方图"/>
     </application>
 
 </manifest>

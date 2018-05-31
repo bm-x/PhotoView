@@ -7,6 +7,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -194,29 +195,33 @@ public class PhotoView extends ImageView {
     /**
      * 启用缩放功能
      */
-    public void enable() {
+    public PhotoView enable() {
         isEnable = true;
+        return this;
     }
 
     /**
      * 禁用缩放功能
      */
-    public void disenable() {
+    public PhotoView disenable() {
         isEnable = false;
+        return this;
     }
 
     /**
      * 启用旋转功能
      */
-    public void enableRotate() {
+    public PhotoView enableRotate() {
         isRotateEnable = true;
+        return this;
     }
 
     /**
      * 禁用旋转功能
      */
-    public void disableRotate() {
+    public PhotoView disableRotate() {
         isRotateEnable = false;
+        return this;
     }
 
     /**
@@ -672,7 +677,7 @@ public class PhotoView extends ImageView {
 
         if (tx != 0 || ty != 0) {
             if (!mTranslate.mFlingScroller.isFinished()) mTranslate.mFlingScroller.abortAnimation();
-            mTranslate.withTranslate(mTranslateX, mTranslateY, -tx, -ty);
+            mTranslate.withTranslate(-tx, -ty);
         }
     }
 
@@ -726,8 +731,7 @@ public class PhotoView extends ImageView {
     };
 
     private float resistanceScrollByX(float overScroll, float detalX) {
-        float s = detalX * (Math.abs(Math.abs(overScroll) - MAX_OVER_RESISTANCE) / (float) MAX_OVER_RESISTANCE);
-        return s;
+        return detalX * (Math.abs(Math.abs(overScroll) - MAX_OVER_RESISTANCE) / (float) MAX_OVER_RESISTANCE);
     }
 
     private float resistanceScrollByY(float overScroll, float detalY) {
@@ -1024,7 +1028,7 @@ public class PhotoView extends ImageView {
             mInterpolatorProxy.setTargetInterpolator(interpolator);
         }
 
-        void withTranslate(int startX, int startY, int deltaX, int deltaY) {
+        void withTranslate(int deltaX, int deltaY) {
             mLastTranslateX = 0;
             mLastTranslateY = 0;
             mTranslateScroller.startScroll(0, 0, deltaX, deltaY, mAnimaDuring);
@@ -1204,6 +1208,27 @@ public class PhotoView extends ImageView {
         }
     }
 
+    public void apply(Info info) {
+        float angle = info.mDegrees % 360 - mDegrees % 360;
+
+        mAnimaMatrix.postRotate(angle, mImgRect.centerX(), mImgRect.centerY());
+        executeTranslate();
+
+        Info mine = getInfo();
+
+        float scale = Math.min(info.mImgRect.width() / mine.mImgRect.width(), info.mImgRect.height() / mine.mImgRect.height());
+
+        mAnimaMatrix.postScale(scale, scale, mine.mImgRect.left, mine.mImgRect.top);
+        mAnimaMatrix.postTranslate(info.mImgRect.left - mine.mImgRect.left, info.mImgRect.top - mine.mImgRect.top);
+
+        mDegrees += angle;
+        mScale *= scale;
+
+        mScaleCenter.set(info.mScreenCenter);
+
+        executeTranslate();
+    }
+
     public Info getInfo() {
         RectF rect = new RectF();
         int[] p = new int[2];
@@ -1322,7 +1347,7 @@ public class PhotoView extends ImageView {
             mScaleCenter.set(ocx, ocy);
             mRotateCenter.set(ocx, ocy);
 
-            mTranslate.withTranslate(0, 0, (int) -(ocx - mcx), (int) -(ocy - mcy));
+            mTranslate.withTranslate((int) -(ocx - mcx), (int) -(ocy - mcy));
             mTranslate.withScale(scale, 1);
             mTranslate.withRotate((int) info.mDegrees, 0);
 
@@ -1375,7 +1400,7 @@ public class PhotoView extends ImageView {
 
             mDegrees = mDegrees % 360;
 
-            mTranslate.withTranslate(0, 0, (int) (tcx - mScaleCenter.x), (int) (tcy - mScaleCenter.y));
+            mTranslate.withTranslate((int) (tcx - mScaleCenter.x), (int) (tcy - mScaleCenter.y));
             mTranslate.withScale(mScale, scale);
             mTranslate.withRotate((int) mDegrees, (int) info.mDegrees, mAnimaDuring * 2 / 3);
 
@@ -1405,7 +1430,7 @@ public class PhotoView extends ImageView {
     public void rotate(float degrees) {
         mDegrees += degrees;
         int centerX = (int) (mWidgetRect.left + mWidgetRect.width() / 2);
-        int centerY = (int) (mWidgetRect.top + mWidgetRect.height() /2);
+        int centerY = (int) (mWidgetRect.top + mWidgetRect.height() / 2);
 
         mAnimaMatrix.postRotate(degrees, centerX, centerY);
         executeTranslate();

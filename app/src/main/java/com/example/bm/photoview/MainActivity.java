@@ -38,4 +38,8 @@ public class MainActivity extends Activity {
     public void imageview(View view) {
         startActivity(new Intent(this, ImageViewActivity.class));
     }
+
+    public void apply(View view) {
+        startActivity(new Intent(this, ApplyImageInfoActivity.class));
+    }
 }

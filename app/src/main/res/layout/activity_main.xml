@@ -44,4 +44,11 @@
         android:text="ImageView Info"
         android:textAllCaps="false" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="apply"
+        android:text="Apply Info"
+        android:textAllCaps="false" />
+
 </LinearLayout>
