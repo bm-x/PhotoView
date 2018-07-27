@@ -70,8 +70,6 @@ public class PhotoView extends ImageView {
     private float mRotateFlag;
     private float mDegrees;
     private float mScale = 1.0f;
-    private int mTranslateX;
-    private int mTranslateY;
 
     private float mHalfBaseRectWidth;
     private float mHalfBaseRectHeight;
@@ -434,14 +432,12 @@ public class PhotoView extends ImageView {
         mAnimaMatrix.postTranslate(0, ty);
         executeTranslate();
         resetBase();
-        mTranslateY += ty;
     }
 
     private void initFitEnd() {
         initFitCenter();
 
         float ty = (mWidgetRect.bottom - mImgRect.bottom);
-        mTranslateY += ty;
         mAnimaMatrix.postTranslate(0, ty);
         executeTranslate();
         resetBase();
@@ -467,8 +463,6 @@ public class PhotoView extends ImageView {
         mHalfBaseRectWidth = mBaseRect.width() / 2;
         mHalfBaseRectHeight = mBaseRect.height() / 2;
         mScale = 1;
-        mTranslateX = 0;
-        mTranslateY = 0;
         mAnimaMatrix.reset();
     }
 
@@ -635,9 +629,6 @@ public class PhotoView extends ImageView {
         mScaleCenter.set(cx, cy);
         mRotateCenter.set(cx, cy);
 
-        mTranslateX = 0;
-        mTranslateY = 0;
-
         mTmpMatrix.reset();
         mTmpMatrix.postTranslate(-mBaseRect.left, -mBaseRect.top);
         mTmpMatrix.postTranslate(cx - mHalfBaseRectWidth, cy - mHalfBaseRectHeight);
@@ -684,6 +675,7 @@ public class PhotoView extends ImageView {
     private boolean isImageCenterHeight(RectF rect) {
         return Math.abs(Math.round(rect.top) - (mWidgetRect.height() - rect.height()) / 2) < 1;
     }
+
 
     private boolean isImageCenterWidth(RectF rect) {
         return Math.abs(Math.round(rect.left) - (mWidgetRect.width() - rect.width()) / 2) < 1;
@@ -851,7 +843,6 @@ public class PhotoView extends ImageView {
                     distanceX = mImgRect.right - mWidgetRect.right;
 
                 mAnimaMatrix.postTranslate(-distanceX, 0);
-                mTranslateX -= distanceX;
             } else if (imgLargeWidth || hasMultiTouch || hasOverTranslate) {
                 checkRect();
                 if (!hasMultiTouch) {
@@ -861,7 +852,6 @@ public class PhotoView extends ImageView {
                         distanceX = resistanceScrollByX(mImgRect.right - mCommonRect.right, distanceX);
                 }
 
-                mTranslateX -= distanceX;
                 mAnimaMatrix.postTranslate(-distanceX, 0);
                 hasOverTranslate = true;
             }
@@ -873,7 +863,6 @@ public class PhotoView extends ImageView {
                     distanceY = mImgRect.bottom - mWidgetRect.bottom;
 
                 mAnimaMatrix.postTranslate(0, -distanceY);
-                mTranslateY -= distanceY;
             } else if (imgLargeHeight || hasOverTranslate || hasMultiTouch) {
                 checkRect();
                 if (!hasMultiTouch) {
@@ -884,7 +873,6 @@ public class PhotoView extends ImageView {
                 }
 
                 mAnimaMatrix.postTranslate(0, -distanceY);
-                mTranslateY -= distanceY;
                 hasOverTranslate = true;
             }
 
@@ -911,8 +899,6 @@ public class PhotoView extends ImageView {
 
             mScaleCenter.set(imgcx, imgcy);
             mRotateCenter.set(imgcx, imgcy);
-            mTranslateX = 0;
-            mTranslateY = 0;
 
             if (isZoonUp) {
                 from = mScale;
@@ -930,7 +916,6 @@ public class PhotoView extends ImageView {
             mTmpMatrix.postTranslate(-mHalfBaseRectWidth, -mHalfBaseRectHeight);
             mTmpMatrix.postRotate(mDegrees, mRotateCenter.x, mRotateCenter.y);
             mTmpMatrix.postScale(to, to, mScaleCenter.x, mScaleCenter.y);
-            mTmpMatrix.postTranslate(mTranslateX, mTranslateY);
             mTmpMatrix.mapRect(mTmpRect, mBaseRect);
             doTranslateReset(mTmpRect);
 
@@ -1011,6 +996,9 @@ public class PhotoView extends ImageView {
         int mLastTranslateX;
         int mLastTranslateY;
 
+        int mTranslateX;
+        int mTranslateY;
+
         RectF mClipRect = new RectF();
 
         InterpolatorProxy mInterpolatorProxy = new InterpolatorProxy();
@@ -1081,6 +1069,15 @@ public class PhotoView extends ImageView {
 
         void start() {
             isRuning = true;
+
+            float scale = mBaseRect.width() / mImgRect.width();
+
+            mTmpMatrix.set(mAnimaMatrix);
+            mTmpMatrix.postScale(scale, scale, mScaleCenter.x, mScaleCenter.y);
+            mTmpMatrix.mapRect(mTmpRect, mBaseRect);
+
+            mTranslateX = (int) (mTmpRect.left - mBaseRect.left);
+            mTranslateY = (int) (mTmpRect.top - mBaseRect.top);
             postExecute();
         }
 
@@ -1287,8 +1284,6 @@ public class PhotoView extends ImageView {
         mAnimaMatrix.reset();
         executeTranslate();
         mScale = 1;
-        mTranslateX = 0;
-        mTranslateY = 0;
     }
 
     public interface ClipCalculate {
@@ -1376,9 +1371,6 @@ public class PhotoView extends ImageView {
     public void animaTo(Info info, Runnable completeCallBack) {
         if (isInit) {
             mTranslate.stop();
-
-            mTranslateX = 0;
-            mTranslateY = 0;
 
             float tcx = info.mRect.left + info.mRect.width() / 2;
             float tcy = info.mRect.top + info.mRect.height() / 2;
