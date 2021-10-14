@@ -153,6 +153,7 @@ public class PhotoView extends ImageView {
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
+        super.setOnLongClickListener(l); 
         mLongClick = l;
     }
 
