@@ -912,13 +912,25 @@ public class PhotoView extends ImageView {
             mTranslateY = 0;
 
             if (isZoonUp) {
-                from = mScale;
-                to = 1;
+                if (mScale == 1){
+                    isZoonUp = false;
+                    from = mScale;
+                    to = mMaxScale;
+                    mScaleCenter.set(e.getX(), e.getY());
+                }else {
+                    from = mScale;
+                    to = 1;
+                }
             } else {
-                from = mScale;
-                to = mMaxScale;
-
-                mScaleCenter.set(e.getX(), e.getY());
+                if (mScale == mMaxScale){
+                    isZoonUp = true;
+                    from = mScale;
+                    to = 1;
+                }else {
+                    from = mScale;
+                    to = mMaxScale;
+                    mScaleCenter.set(e.getX(), e.getY());
+                }
             }
 
             mTmpMatrix.reset();
