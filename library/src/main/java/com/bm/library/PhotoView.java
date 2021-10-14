@@ -413,14 +413,18 @@ public class PhotoView extends ImageView {
     }
 
     private void initFitCenter() {
-        if (mImgRect.width() < mWidgetRect.width()) {
-            mScale = mWidgetRect.width() / mImgRect.width();
-
-            mAnimaMatrix.postScale(mScale, mScale, mScreenCenter.x, mScreenCenter.y);
-
-            executeTranslate();
-            resetBase();
+        if (mImgRect.width() >= mImgRect.height()) {
+            if (mImgRect.width() < mWidgetRect.width()) {
+                mScale = mWidgetRect.width() / mImgRect.width();
+            }
+        } else {
+            if (mImgRect.height() < mWidgetRect.height()) {
+                mScale = mWidgetRect.height() / mImgRect.height();
+            }
         }
+        mAnimaMatrix.postScale(mScale, mScale, mScreenCenter.x, mScreenCenter.y);
+        executeTranslate();
+        resetBase();
     }
 
     private void initFitStart() {
